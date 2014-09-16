@@ -1,0 +1,900 @@
+//
+//  MessageViewController.m
+//  电视微信
+//
+//  Created by 陈 琨 on 13-9-22.
+//  Copyright (c) 2013年 黑小刚. All rights reserved.
+//
+//http://172.16.11.6/HeadPic/
+#import "MessageViewController.h"
+//#import "UIImageView+WebCache.h"
+#import "ASIHTTPRequest.h"
+#import "FriendManageViewControllerViewController.h"
+#import "ChatIngController.h"
+#import "AsyncImageView.h"
+#import "ChineseToPinyin.h"
+#import "addTreamViewController.h"
+#import "LinkManViewController.h"
+#import "Header.h"
+#import "ZuViewController.h"
+@interface MessageViewController ()
+
+@end
+
+@implementation MessageViewController
+@synthesize headViewArray,array;
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+
+-(void)addTream
+{
+
+//    addTreamViewController *firstViewController = [[addTreamViewController alloc] init];
+//    [firstViewController setHidesBottomBarWhenPushed:(BOOL)(1)];
+//    firstViewController.strUid=self.strUid;
+////    firstViewController.delegate=self;
+//      [self.navigationController pushViewController:firstViewController animated:YES];
+//    [firstViewController release];
+
+    ZuViewController *firstViewController = [[ZuViewController alloc] init];
+    [firstViewController setHidesBottomBarWhenPushed:(BOOL)(1)];
+//    firstViewController.strUid=self.strUid;
+    //    firstViewController.delegate=self;
+//    [self presentViewController:firstViewController animated:YES completion:nil];
+//    [firstViewController release];
+
+    CATransition *animation = [CATransition animation];
+    animation.delegate = self;
+    animation.duration = 0.3;
+    animation.timingFunction = UIViewAnimationCurveEaseInOut;
+    
+    animation.type = kCATransitionMoveIn;
+    animation.subtype = kCATransitionFromTop;
+    
+    [self.navigationController pushViewController:firstViewController animated:NO];
+    [self.navigationController.view.layer addAnimation:animation forKey:nil];
+
+}
+
+
+-(void)viewWillAppear:(BOOL)animated
+{
+
+    [self tabarSmallScale];
+    NSUserDefaults *userDefaults=[NSUserDefaults standardUserDefaults];
+    
+    NSArray *arrr=  [userDefaults arrayForKey:@"yonghu"];
+    [self request:arrr];
+//    NSUserDefaults *userDefaults=[NSUserDefaults standardUserDefaults];
+//    
+//    NSArray *arrr=  [userDefaults arrayForKey:@"yonghu"];
+//    NSLog(@"sssssssssss=%@",[arrr objectAtIndex:3]);
+//    if ([[arrr objectAtIndex:3] intValue]==11) {
+////         [self request:arrr];
+//        [self shuju];
+//        NSMutableArray *arr=[NSMutableArray arrayWithArray:arrr];
+//        [arr replaceObjectAtIndex:3 withObject:@"13"];
+//        [userDefaults setObject:arr forKey:@"yonghu"];
+//    }
+   
+
+ 
+
+
+}
+-(void)request:(NSArray *)arr
+{
+
+    NSString *post = [NSString stringWithFormat:@"userId=%@&passWord=%@",[arr objectAtIndex:0],[arr objectAtIndex:1]];
+//    NSLog(@"post=%@",post);
+    //将post数据转换为 NSASCIIStringEncoding 编码格式
+    NSData *postData = [post dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES];
+    
+    
+    NSMutableURLRequest *request = [[[NSMutableURLRequest alloc] init] autorelease];
+    //要post的地址/
+//    [request setURL:[NSURL URLWithString:@"http://119.44.220.4/mobilelogin"]];
+    [request setURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@/mobilelogin",HTTPHEAD]]];
+
+    //    [request setURL:[NSURL URLWithString:@"http://172.16.4.5:8080/TSSP/mobilelogin"]];
+    
+    //post类型
+    [request setHTTPMethod:@"POST"];
+    
+    
+    
+    //设置post数据
+    [request setHTTPBody:postData];
+    //创建链接
+   NSURLConnection * conn1 = [[[NSURLConnection alloc] initWithRequest:request delegate:self] autorelease];
+
+
+
+
+}
+-(void)Chage:(NSNotification *)notifacation
+{
+    NSString *str=(NSString *)notifacation.object;
+    //    NSLog(@"%@",str);
+    if ([str length]>3) {
+        NSUserDefaults *userDefaults=[NSUserDefaults standardUserDefaults];
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"Chage" object:@"" ];
+        
+        NSArray *arrr=  [userDefaults arrayForKey:@"yonghu"];
+        [self request:arrr];
+    }
+    //    NSLog(@"wwwwwwwwwwwwgg");
+    
+    
+    
+}
+
+#pragma mark -connect
+-(void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+{
+    [_data setLength:0];
+}
+-(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+{
+    [_data appendData:data];
+    
+}
+-(void)connectionDidFinishLoading:(NSURLConnection *)connection
+{
+    
+    NSError *error;
+   
+    NSArray *arrPerson= [NSJSONSerialization JSONObjectWithData:_data options:kNilOptions error:&error ];
+    NSLog(@"arrPerson=%@",arrPerson);
+    if (arrPerson==NULL) {
+ ;
+    }else{
+        NSUserDefaults *userDefaults=[NSUserDefaults standardUserDefaults];
+        [userDefaults setObject:arrPerson forKey:@"person"];
+        NSMutableDictionary *dict=[[NSMutableDictionary alloc]init];
+        for (int i=0; i<[arrPerson count]; i++) {
+            
+            [dict setObject:[arrPerson  objectAtIndex:i] forKey:[[arrPerson  objectAtIndex:i]objectForKey:@"f_UId" ]];
+        }
+
+        [userDefaults setObject:dict forKey:@"personF_Uid"];
+        [dict release];
+        [self shuju];
+        [self scroll1ToBottomAnimated:YES];
+        [_tableView reloadData];
+        [self scrollToBottomAnimated:YES ];
+    }
+}
+-(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+{
+//
+//    [self shuju];
+//    [_tableView reloadData];
+
+}
+-(void)dealloc
+{
+    [super  dealloc];
+//    [_dictMessage release];
+    [_dictZu release];
+    [_data release];
+    [db release];
+//       [_tableView release];
+    [muableArray release];
+    [_searchArray release];
+//    [_dictZu release];
+    [headViewArray release];
+
+}
+- (void)scroll1ToBottomAnimated:(BOOL)animated
+{
+
+}
+-(void)viewWillDisappear:(BOOL)animated
+{
+
+    for(int i = 0;i<[headViewArray count];i++)
+    {
+        HeadView *head = [headViewArray objectAtIndex:i];
+        if (head.open) {
+            self.sections=head.section;
+            self.rows = [_tableView numberOfRowsInSection:self.sections];
+            
+        }
+    }
+    NSLog(@"self.sections=%d",self.sections);
+
+}
+- (void)scrollToBottomAnimated:(BOOL)animated
+{
+//    NSLog(@"%d    %d  %d   %d",self.sections,self.rows,[muableArray count],[self.array22 count]);
+    if (self.sections!=100) {
+  
+    if (self.sections <[muableArray count]) {
+        self.array22=[self.dictZu objectForKey:[muableArray objectAtIndex:self.sections ]];
+         if(self.rows<[self.array22 count])
+         {
+             [self selectedSenction:self.sections];
+//             [_tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:self.rows inSection:self.sections]
+//                               atScrollPosition:UITableViewScrollPositionBottom
+//                                       animated:animated];
+         
+         
+         }
+    }
+
+    }
+    
+//    if(rows > 0) {
+//        [_tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:rows inSection:0]
+//                              atScrollPosition:UITableViewScrollPositionBottom
+//                                      animated:animated];
+//    }
+}
+- (void)viewDidLoad
+{  [super viewDidLoad];
+    self.view.backgroundColor = [UIColor whiteColor];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(Chage:) name:@"Chage" object:nil];
+
+    self.navigationItem.title=@"联系人";
+    muableArray=[[NSMutableArray alloc]init];
+//    _dictMessage =[[NSMutableDictionary alloc]init];
+    _data=[[NSMutableData alloc]init];
+    db=[[SUserDB alloc]init];
+    _dictZu=[[NSMutableDictionary alloc]init];
+//    [self shuju];
+    self.navigationController.navigationBar.tintColor = [UIColor colorWithRed:0.035 green:0.117 blue:0.184 alpha:0.286];
+
+//    self.navigationController.navigationBar.tintColor=[UIColor colorWithPatternImage:[UIImage imageNamed:@"蓝条.png"]];
+    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0,320,self.view.frame.size.height-100) style:UITableViewStylePlain];
+    _tableView.delegate = self;
+    _tableView.dataSource = self;
+    _tableView.separatorColor = [UIColor clearColor];
+    _tableView.backgroundColor = [UIColor clearColor];
+    _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+//    [_tableView setClipsToBounds:YES];
+//    [_tableView setBounces:NO];
+    self.sections=100;
+
+  
+    [self.view addSubview:_tableView];
+    _searchArray=[[NSMutableArray alloc]init];
+
+   UIBarButtonItem* backItem = [[UIBarButtonItem alloc] initWithTitle:@"管理" style:UIBarButtonItemStylePlain target:self action:@selector(addTream)];
+    
+	backItem.tag = 90;
+	self.navigationItem.rightBarButtonItem = backItem;
+    [backItem release];
+    
+
+    [self shuju];
+
+
+    
+ 
+    
+	// Do any additional setup after loading the view.
+}
+-(void)shuju
+{
+
+    NSUserDefaults *userDefaults=[NSUserDefaults standardUserDefaults];
+    self.array= [userDefaults arrayForKey:@"person"];
+    self.strUid=[[self.array objectAtIndex:0] objectForKey:@"UId"];
+    NSString *str=[[self.array objectAtIndex:0] objectForKey:@"tream"];
+    NSArray *arrzu=[str componentsSeparatedByString:@","];
+    NSString *str1=[[self.array objectAtIndex:0] objectForKey:@"treamname"];
+    NSArray *arrzu1=[str1 componentsSeparatedByString:@","];
+    [muableArray removeAllObjects];
+    for (int i=0; i<[arrzu1 count]; i++) {
+//        NSLog(@"xxxx=%@",[arrzu1 objectAtIndex:i]);
+        [muableArray addObject:[arrzu1 objectAtIndex:i]];
+        NSMutableArray *arrr=[[NSMutableArray alloc]init];
+        [self.dictZu setObject:arrr forKey:[arrzu1 objectAtIndex:i]];
+        [arrr release];
+        
+    }
+    
+    for (int i=0; i<[self.array count]; i++) {
+        int n= [arrzu indexOfObject: [[self.array objectAtIndex:i] objectForKey:@"thistream"]];
+        //        if ([[self.dictZu objectForKey:[arrzu1 objectAtIndex:n]]isKindOfClass:[NSMutableArray class]]) {
+        
+        [[self.dictZu objectForKey:[arrzu1 objectAtIndex:n]] addObject:[self.array objectAtIndex:i]];
+        
+//        if (n==0) {
+//            NSLog(@"111111=%@",[[self.array objectAtIndex:i] objectForKey:@"nickname"]);
+//        }else{
+//        
+//            NSLog(@"222222=%@",[[self.array objectAtIndex:i] objectForKey:@"nickname"]);
+//
+//        
+//        }
+        
+        //
+        //        }else{
+        //
+        //
+        //            [self.dictZu setValue:[NSMutableArray arrayWithObject:[self.array objectAtIndex:i]] forKey:[arrzu1 objectAtIndex:n]];
+        //
+        //
+        //        
+        //        }
+        
+        
+    }
+
+    [self loadModel];
+
+
+
+}
+-(void)buttonPressed1:(UIButton *)button
+{
+ 
+
+//    FriendManageViewControllerViewController *friend=[[FriendManageViewControllerViewController alloc]init];
+//    [self.navigationController pushViewController:friend animated:YES];
+//    [friend release];
+    FriendManageViewControllerViewController *firstViewController = [[FriendManageViewControllerViewController alloc] init];
+    [firstViewController setHidesBottomBarWhenPushed:(BOOL)(1)];
+
+    [self.navigationController pushViewController:firstViewController animated:YES];
+    [firstViewController  release];
+
+
+
+}
+-(UIView *)loadcell:(NSString *)cellname Cellimage:(UIImage *)cellImage IndenRow:(int)i
+{
+    
+   
+    UIView *cellView=[[[UIView alloc]initWithFrame:CGRectMake(0, 0, 320, 59 )] autorelease];
+//    [cellView setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"color1.png"]]];
+    
+
+    UILabel *lable=[[UILabel alloc]initWithFrame:CGRectMake(70, 10, 100, 25)];
+    [lable setBackgroundColor:[UIColor clearColor]];
+    [lable setTextColor:[UIColor blackColor]];
+//    lable.text=[NSString stringWithFormat:@"%@",[[self.array objectAtIndex:i] objectForKey:@"nickname"]];
+    if ([[[self.array22 objectAtIndex:i] objectForKey:@"f_nickname"] length]!=0) {
+        lable.text=[NSString stringWithFormat:@"%@",[[self.array22 objectAtIndex:i] objectForKey:@"f_nickname"]];
+        
+    }else{
+        
+        lable.text=[NSString stringWithFormat:@"%@",[[self.array22 objectAtIndex:i] objectForKey:@"nickname"]];
+        
+    }
+
+    [lable setTextAlignment:NSTextAlignmentLeft];
+    [cellView addSubview:lable];
+    [lable  release];
+        
+        
+//        UILabel *lable11=[[UILabel alloc]initWithFrame:CGRectMake(60, 28, 100, 15)];
+//        [lable11 setBackgroundColor:[UIColor clearColor]];
+//        [lable11 setTextColor:[UIColor blackColor]];
+//        lable11.text=[NSString stringWithFormat:@"%@",[[self.array objectAtIndex:i] objectForKey:@"phone"]];
+//        [lable11 setTextAlignment:NSTextAlignmentLeft];
+//        [cellView addSubview:lable11];
+//        
+//        [lable11  release];
+
+    AsyncImageView * contentPic = [[AsyncImageView alloc] initWithFrame:CGRectMake(10, 5, 50, 50)];
+    contentPic.urlString = [NSString stringWithFormat:@"%@/HeadPic/%@",HTTPHEADPIC,[[self.array objectAtIndex:i] objectForKey:@"avatar"]];;
+    
+    [cellView addSubview:contentPic];
+    [contentPic release];
+
+    return cellView;
+   
+
+}
+-(void)tabarSmallScale
+{
+    
+    [db createDataBase1];
+    int max=[db findSizeAll:self.strUid];
+//    NSLog(@"wwww%d",max);
+    if (max==0) {
+//        self.navigationController.toolbarItem
+        for ( UIViewController*bbb in self.tabBarController.viewControllers) {
+            if (bbb.tabBarItem.tag==1005 ) {
+                bbb.tabBarItem.badgeValue=nil;
+
+            }
+        }
+    }else{
+        for ( UIViewController *bbb in self.tabBarController.viewControllers) {
+            if (bbb.tabBarItem.tag==1005 ) {
+               bbb.tabBarItem.badgeValue=[NSString stringWithFormat:@"%d",max];
+                
+            }
+        }
+          }
+    
+    
+}
+
+- (void)loadModel{
+
+    _currentRow = -1;
+    if (headViewArray!=nil) {
+        [headViewArray release];
+    }
+    headViewArray = [[NSMutableArray alloc]init ];
+    for(int i = 0;i< [muableArray count] ;i++)
+	{
+		HeadView* headview = [[HeadView alloc] init];
+        headview.delegate = self;
+		headview.section = i;
+//        [headview.backBtn setTitle:[NSString stringWithFormat:@"我的好友%d",i] forState:UIControlStateNormal];
+        UIImageView *image1=[[UIImageView alloc]initWithFrame:CGRectMake(10, 12, 20, 20)];
+        image1.image=[UIImage imageNamed:@"setting_row.png"];
+        image1.tag=90;
+        [headview addSubview:image1];
+        [image1 release];
+//        UIImageView *image2=[[UIImageView alloc]initWithFrame:CGRectMake(290, 10, 15, 30)];
+//        image2.image=[UIImage imageNamed:@"UpAccessory@2x.png"];
+//        [headview addSubview:image2];
+//        [image2 release];
+        UILabel *lablequan=[[UILabel alloc]initWithFrame:CGRectMake(270, 0, 25, 40)];
+        
+        [lablequan setBackgroundColor:[UIColor clearColor]];
+        [lablequan setTextColor:[UIColor colorWithRed:0.83 green:0.82 blue:0.92 alpha:1.0]];
+        [lablequan setFont:[UIFont systemFontOfSize:15]];
+        lablequan.text= [NSString stringWithFormat:@"%d",[[self.dictZu objectForKey:[muableArray objectAtIndex:i]] count]];
+        [lablequan setTextAlignment:NSTextAlignmentRight];
+        [headview addSubview:lablequan];
+        [lablequan release];
+        UILabel *lable=[[UILabel alloc]initWithFrame:CGRectMake(40, 0, 200, 42.50)];
+        [lable setBackgroundColor:[UIColor clearColor]];
+        [lable setTextColor:[UIColor  blackColor]];
+       lable.text=[NSString stringWithFormat:@"%@",[muableArray objectAtIndex:i]];
+        [lable setTextAlignment:NSTextAlignmentLeft];
+        [headview addSubview:lable];
+        [lable  release];
+        UIImageView* line = [[UIImageView alloc]initWithFrame:CGRectMake(0, 42.5, 320, 1)];
+        line.backgroundColor = [UIColor colorWithRed:0.83 green:0.82 blue:0.82 alpha:0.8];
+        [headview addSubview:line];
+        [line release];
+		[headViewArray addObject:headview];
+		[headview release];
+        
+	}
+}
+#pragma mark - TableViewdelegate&&TableViewdataSource
+
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    return nil;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (tableView==_tableView) {
+
+    if (indexPath.section==0) {
+        return 44;
+    }else{
+    HeadView* headView = [headViewArray objectAtIndex:indexPath.section-1];
+    
+    return headView.open?60:0;
+    }
+    }else{
+    
+        return 60;
+    
+    }
+ 
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    if (tableView==_tableView) {
+          return 44;
+    }else{
+        return 0;
+    
+    }
+  
+}
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 0;
+}
+
+
+- (UIView*)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    if (tableView==_tableView) {
+
+    if (section==0) {
+        if (mySearchBar==nil) {
+       
+        mySearchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
+        [mySearchBar setAutocorrectionType:UITextAutocorrectionTypeNo];
+        
+        [mySearchBar setAutocapitalizationType:UITextAutocapitalizationTypeNone];
+        [mySearchBar setTintColor:[UIColor colorWithRed:0.83 green:0.82 blue:0.82 alpha:0.8]];
+        [mySearchBar setKeyboardType:UIKeyboardTypeDefault];
+        [mySearchBar setDelegate:self];
+        [mySearchBar setTag:600];
+        searchDC = [[UISearchDisplayController alloc] initWithSearchBar:mySearchBar contentsController:self]  ;
+        [searchDC setSearchResultsDataSource:self];
+        [searchDC setSearchResultsDelegate:self];
+        [searchDC setDelegate:self];
+        }
+        return mySearchBar;
+    }else{
+    return [headViewArray objectAtIndex:section-1];
+    }
+
+    }else{
+    
+    
+        return nil;
+    
+    }
+    return nil;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    if (tableView==_tableView) {
+  
+    if (section==0) {
+        return 0;
+    }else{
+        HeadView* headView = [headViewArray objectAtIndex:section-1];
+        return headView.open?[self.array22 count]:0;
+    }
+    }else{
+             return  [_searchArray count];
+  
+    
+    
+    }
+    return 0;
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    if (tableView==_tableView) {
+
+        return [headViewArray count]+1;
+    }else{
+    
+        return 1;
+    
+    
+    }
+ 
+}
+
+- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar{
+    [searchBar resignFirstResponder];
+}
+- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar{
+    [searchBar resignFirstResponder];
+    [searchBar setShowsCancelButton:NO];
+}
+- (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar{
+    [searchBar setText:@""];
+    [searchBar setShowsCancelButton:YES];
+    for (UIView *searchbuttons in mySearchBar.subviews)
+    {
+        if ([searchbuttons isKindOfClass:[UIButton class]])
+        {
+            UIButton *cancelButton = (UIButton*)searchbuttons;
+            cancelButton.enabled = YES;
+            //            [cancelButton setBackgroundImage:[UIImage imageNamed:@"search_bg.png"] forState:UIControlStateNormal];//背景
+            [cancelButton setTitle:@"取消"  forState:UIControlStateNormal];//文字
+            break;
+        }
+    }
+    
+}
+
+
+
+
+
+
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText{
+//    NSLog(@"textChange");
+    if (_searchArray != nil) {
+        [_searchArray removeAllObjects];
+    }
+    if ([searchText length]!=0) {
+        [self findData:searchText];
+        
+    }
+}
+-(void)findData:(NSString *)str11
+{
+//    NSLog(@"hhhhhh");
+    NSString *str= [ChineseToPinyin pinyinFromChiniseString:str11];
+    
+    for (int i=0; i<[self.array  count] ; i++) {
+        NSRange  rang=[[ChineseToPinyin pinyinFromChiniseString: [[self.array  objectAtIndex:i] objectForKey:@"f_userId" ]] rangeOfString:str];
+
+        NSRange  rang1=[[ChineseToPinyin pinyinFromChiniseString: [[self.array  objectAtIndex:i] objectForKey:@"f_nickname" ]] rangeOfString:str];
+        NSRange  rang2=[[ChineseToPinyin pinyinFromChiniseString: [[self.array  objectAtIndex:i] objectForKey:@"nickname" ]] rangeOfString:str];
+//        NSLog(@"%d  %d   %d",rang.length,rang1.length,rang2.length);
+        if (rang.length!=0) {
+            [_searchArray addObject:[self.array  objectAtIndex:i]];
+            continue;
+        }
+        if (rang1.length!=0) {
+            [_searchArray addObject:[self.array  objectAtIndex:i]];
+            continue;
+        }
+        if (rang2.length!=0) {
+            [_searchArray addObject:[self.array  objectAtIndex:i]];
+            continue;
+        }
+        
+    }
+    
+}
+
+
+- (UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    static NSString *indentifier = @"cell";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:indentifier];
+    if (!cell) {
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:indentifier] autorelease];
+        cell.selectionStyle=UITableViewCellSelectionStyleNone;
+//        if (tableView==_tableView) {
+        
+        UIButton* backBtn=  [[UIButton alloc]initWithFrame:CGRectMake(0, 0, 340, 60)];
+        backBtn.tag = 20000;
+        [backBtn setBackgroundImage:[UIImage imageNamed:@"listitem.png"] forState:UIControlStateHighlighted];
+        backBtn.userInteractionEnabled = NO;
+        [cell.contentView addSubview:backBtn];
+        [backBtn release];
+//
+//        
+//        UIImageView* line = [[UIImageView alloc]initWithFrame:CGRectMake(0, 59, 340, 1)];
+//        line.backgroundColor = [UIColor grayColor];
+//        [cell.contentView addSubview:line];
+//        [line release];
+//        }
+    }
+    if (tableView==_tableView) {
+ 
+    if (indexPath.section!=0) {
+        HeadView* view = [headViewArray objectAtIndex:indexPath.section-1];
+        if (view.open) {
+            if (indexPath.row == _currentRow) {
+            }
+        }
+        for (UIView *vvv in cell.contentView.subviews) {
+            if ([vvv isKindOfClass:[UIView class]]) {
+                [vvv removeFromSuperview];
+            }
+            if ([vvv isKindOfClass:[AsyncImageView class]]) {
+                [vvv removeFromSuperview];
+            }
+   
+            
+            
+        }
+        [cell.contentView addSubview:[self loadcell:nil Cellimage:nil IndenRow:indexPath.row]];
+        UIImageView* line = [[UIImageView alloc]initWithFrame:CGRectMake(0, 59, 320, 1)];
+        line.backgroundColor = [UIColor colorWithRed:0.83 green:0.82 blue:0.82 alpha:0.8];
+        [cell.contentView addSubview:line];
+        [line release];
+    }
+
+    }else{
+        for (UIView *vvv in cell.contentView.subviews) {
+            if ([vvv isKindOfClass:[UIView class]]) {
+                [vvv removeFromSuperview];
+            }
+            if ([vvv isKindOfClass:[AsyncImageView class]]) {
+                [vvv removeFromSuperview];
+            }
+            
+            
+            
+        }
+        [cell.contentView addSubview:[self loadcell1:nil Cellimage:nil IndenRow:indexPath.row]];
+
+    
+    
+    }
+    
+
+    
+    return cell;
+}
+
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (tableView==_tableView) {
+
+    ChatIngController *firstViewController = [[ChatIngController alloc] init];
+        [firstViewController setHidesBottomBarWhenPushed:(BOOL)(1)];
+    firstViewController.strfUsid=[[self.array22 objectAtIndex:indexPath.row] objectForKey:@"f_UId"];
+//    firstViewController.strfname=[NSString stringWithFormat:@"%@",[[self.array objectAtIndex:indexPath.row] objectForKey:@"nickname"]];
+        if ([[[self.array22 objectAtIndex:indexPath.row] objectForKey:@"f_nickname"] length]!=0) {
+            firstViewController.strfname=[[self.array22 objectAtIndex:indexPath.row] objectForKey:@"f_nickname"];
+            
+        }else{
+            firstViewController.strfname=[[self.array22 objectAtIndex:indexPath.row] objectForKey:@"nickname"];
+            
+            
+            
+        }
+
+
+    firstViewController.strfPic=[[self.array22 objectAtIndex:indexPath.row] objectForKey:@"avatar"];
+        firstViewController.strfPic1=[[self.array22 objectAtIndex:indexPath.row] objectForKey:@"m_avatar"];
+    [self.navigationController pushViewController:firstViewController animated:YES];
+    [firstViewController release];
+    }else{
+    
+        ChatIngController *firstViewController = [[ChatIngController alloc] init];
+        [firstViewController setHidesBottomBarWhenPushed:(BOOL)(1)];
+        firstViewController.strfUsid=[[_searchArray objectAtIndex:indexPath.row] objectForKey:@"f_UId"];
+//        firstViewController.strfname=[NSString stringWithFormat:@"%@",[[_searchArray objectAtIndex:indexPath.row] objectForKey:@"nickname"]];
+        if ([[[_searchArray objectAtIndex:indexPath.row] objectForKey:@"f_nickname"] length]!=0) {
+            firstViewController.strfname=[[_searchArray objectAtIndex:indexPath.row] objectForKey:@"f_nickname"];
+            
+        }else{
+            firstViewController.strfname=[[_searchArray objectAtIndex:indexPath.row] objectForKey:@"nickname"];
+            
+            
+            
+        }
+        
+        
+        
+        
+        firstViewController.strfPic=[[_searchArray objectAtIndex:indexPath.row] objectForKey:@"avatar"];
+            firstViewController.strfPic1=[[_searchArray objectAtIndex:indexPath.row] objectForKey:@"m_avatar"];
+        [self.navigationController pushViewController:firstViewController animated:YES];
+        [firstViewController release];
+    
+    
+    
+    }
+}
+-(void)selectedSenction:(int)sectionIndex{
+    self.array22=[self.dictZu objectForKey:[muableArray objectAtIndex:sectionIndex]];
+    //    NSLog(@"xxxxx=%@",self.array22);
+
+    _currentRow = -1;
+        _currentSection = sectionIndex;
+    [self reset];
+
+}
+
+#pragma mark - HeadViewdelegate
+-(void)selectedWith:(HeadView *)view{
+  self.array22=[self.dictZu objectForKey:[muableArray objectAtIndex:view.section]];
+//    NSLog(@"xxxxx=%@",self.array22);
+    _currentRow = -1;
+    if (view.open) {
+        for(int i = 0;i<[headViewArray count];i++)
+        {
+            HeadView *head = [headViewArray objectAtIndex:i];
+            head.open = NO;
+            if (view.section==head.section) {
+                CGAffineTransform transform = CGAffineTransformRotate([head viewWithTag:90].transform,-M_PI/2.0);
+                //动画开始
+                [UIView beginAnimations:@"rotate" context:nil ];
+                //动画时常
+                [UIView setAnimationDuration:0.1];
+                //添加代理
+                //            [UIView setAnimationDelegate:self];
+                //获取transform的值
+                [[head viewWithTag:90] setTransform:transform];
+                //关闭动画
+                [UIView commitAnimations];
+                
+
+            }
+            
+        }
+        [_tableView reloadData];
+        return;
+    }
+    _currentSection = view.section;
+    [self reset];
+    
+}
+-(UIView *)loadcell1:(NSString *)cellname Cellimage:(UIImage *)cellImage IndenRow:(int)i
+{
+    
+    
+    UIView *cellView=[[[UIView alloc]initWithFrame:CGRectMake(0, 0, 320, 59 )]autorelease];
+//    [cellView setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"listitem.png"]]];
+    
+    
+    
+    UILabel *lable=[[UILabel alloc]initWithFrame:CGRectMake(70, 10, 100, 25)];
+    [lable setBackgroundColor:[UIColor clearColor]];
+    [lable setTextColor:[UIColor blackColor]];
+    if ([[[_searchArray objectAtIndex:i] objectForKey:@"f_nickname"] length]!=0) {
+        lable.text=[NSString stringWithFormat:@"%@",[[_searchArray objectAtIndex:i] objectForKey:@"f_nickname"]];
+        
+    }else{
+        lable.text=[NSString stringWithFormat:@"%@",[[_searchArray objectAtIndex:i] objectForKey:@"nickname"]];
+        
+        
+        
+    }
+    [lable setTextAlignment:NSTextAlignmentLeft];
+    [cellView addSubview:lable];
+    [lable  release];
+    
+    
+    AsyncImageView * contentPic = [[AsyncImageView alloc] initWithFrame:CGRectMake(10, 5, 50, 50)];
+    contentPic.urlString = [NSString stringWithFormat:@"%@/HeadPic/%@",HTTPHEADPIC,[[_searchArray objectAtIndex:i] objectForKey:@"avatar"]];;
+    [cellView addSubview:contentPic];
+    [contentPic release];
+    
+    
+    
+    
+    
+    
+    return cellView;
+    
+    
+}
+
+//界面重置
+- (void)reset
+{
+    for(int i = 0;i<[headViewArray count];i++)
+    {
+        HeadView *head = [headViewArray objectAtIndex:i];
+        if(head.section == _currentSection)
+        {
+            head.open = YES;
+            CGAffineTransform transform = CGAffineTransformRotate([head viewWithTag:90].transform,M_PI/2.0);
+            //动画开始
+            [UIView beginAnimations:@"rotate" context:nil ];
+            //动画时常
+            [UIView setAnimationDuration:0.1];
+            //添加代理
+//            [UIView setAnimationDelegate:self];
+            //获取transform的值
+            [[head viewWithTag:90] setTransform:transform];
+            //关闭动画
+            [UIView commitAnimations];
+//            [head.backBtn setBackgroundImage:[UIImage imageNamed:@"color1.png"] forState:UIControlStateNormal];
+            
+        }else {
+            if (head.open) {
+                CGAffineTransform transform = CGAffineTransformRotate([head viewWithTag:90].transform,-M_PI/2.0);
+                //动画开始
+                [UIView beginAnimations:@"rotate" context:nil ];
+                //动画时常
+                [UIView setAnimationDuration:0.1];
+                //添加代理
+                //            [UIView setAnimationDelegate:self];
+                //获取transform的值
+                [[head viewWithTag:90] setTransform:transform];
+                //关闭动画
+                [UIView commitAnimations];
+            }
+
+//            [head.backBtn setBackgroundImage:[UIImage imageNamed:@"color1.png"] forState:UIControlStateNormal];
+            
+            head.open = NO;
+        }
+        
+    }
+    [_tableView reloadData];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+@end

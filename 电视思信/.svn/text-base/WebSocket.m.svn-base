@@ -1,0 +1,111 @@
+//
+//  WebSocket.m
+//  电视微信
+//
+//  Created by 陈 琨 on 13-9-30.
+//  Copyright (c) 2013年 黑小刚. All rights reserved.
+//
+
+#import "WebSocket.h"
+
+@implementation WebSocket
+- (id)init
+{
+	self = [super init];
+
+
+	return self;
+}
+
+- (void)_reconnect:(NSString *)str;
+{
+    self.strUID=str;
+    _webSocket.delegate = nil;
+    [_webSocket close];
+    
+    _webSocket = [[SRWebSocket alloc] initWithURLRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"ws://172.16.11.6:3946"]]];
+    _webSocket.delegate = self;
+    
+    //    self.title = @"Opening Connection...";
+    [_webSocket open];
+    
+}
+#pragma mark - SRWebSocketDelegate
+
+- (void)webSocketDidOpen:(SRWebSocket *)webSocket;
+{
+    NSLog(@"Websocket Connected");
+    //    self.title = @"Connected!";
+    [_webSocket  send:[NSString stringWithFormat:@"mobile,%@",self.strUID]];
+}
+
+- (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
+{
+    NSLog(@":( Websocket Failed With Error %@", error);
+    
+    //    self.title = @"Connection Failed! (see logs)";
+    _webSocket = nil;
+}
+
+- (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)message;
+{
+    NSLog(@"Received %@", message);
+    //    [delegate ReceiveMessage:message];
+    NSString *str11=(NSString *)message;
+    NSMutableDictionary *dictMessage=[[NSMutableDictionary alloc]init];
+    if ([str11 length]>60) {
+        
+        NSArray *arr123=[str11 componentsSeparatedByString:@"["];
+        arr123=[[arr123 objectAtIndex:3] componentsSeparatedByString:@"]"];
+        arr123=[[arr123 objectAtIndex:0] componentsSeparatedByString:@"}"];
+        for (int i=0; i<[arr123 count]-1; i++) {
+            
+            
+            [dictMessage setObject:[[[[arr123 objectAtIndex:i] componentsSeparatedByString:@"\""] objectAtIndex:6] stringByReplacingOccurrencesOfString:@":" withString:@""] forKey: [[[arr123 objectAtIndex:i] componentsSeparatedByString:@"\""] objectAtIndex:3]];
+        }
+        int max=0;
+        for (int i=0; i<[[dictMessage allKeys] count]; i++) {
+            max=max+[[dictMessage objectForKey:[[dictMessage  allKeys] objectAtIndex:i] ] intValue];
+            
+            
+            
+            
+        }
+        //    rootViewController *root=[[rootViewController alloc]init];
+        //    [root tabarSmallScale:[NSString stringWithFormat:@"%d",max]];
+        //    [root  release];
+//        [self tabarSmallScale:[NSString stringWithFormat:@"%d",max]];
+        
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"WebsocketMessage" object:dictMessage ];
+
+        
+    }
+    
+    [dictMessage release];
+    
+    
+    
+}
+-(void)tabarSmallScale:(NSString *)str
+{
+    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+    UILabel *lablescale=[[UILabel alloc]initWithFrame:CGRectMake(70, 405, 20, 15)];
+    lablescale.tag=999;
+    [lablescale setBackgroundColor:[UIColor redColor]];
+    [lablescale setTextColor:[UIColor  blackColor]];
+    [lablescale setFont:[UIFont systemFontOfSize:8]];
+    lablescale.text=str;
+    [lablescale setBaselineAdjustment:UIBaselineAdjustmentAlignCenters];
+    [window.rootViewController.view addSubview:lablescale];
+    [lablescale release];
+    
+    
+}
+- (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean;
+{
+    NSLog(@"WebSocket closed");
+    //    self.title = @"Connection Closed! (see logs)";
+    _webSocket = nil;
+}
+
+@end

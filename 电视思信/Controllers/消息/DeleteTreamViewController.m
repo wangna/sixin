@@ -1,0 +1,245 @@
+//
+//  DeleteTreamViewController.m
+//  电视微信
+//
+//  Created by 陈 琨 on 13-11-11.
+//  Copyright (c) 2013年 黑小刚. All rights reserved.
+//
+
+#import "DeleteTreamViewController.h"
+#import "SVProgressHUD.h"
+#import "Header.h"
+@interface DeleteTreamViewController ()
+
+@end
+
+@implementation DeleteTreamViewController
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+-(void)dealloc
+{
+    [super dealloc];
+    [_data release];
+    [lable release];
+    _strUid=nil;
+    _TreamName=nil;
+    _delegate=nil;
+}
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+	// Do any additional setup after loading the view.
+    UIImageView *imagepic=[[UIImageView alloc]init];
+    imagepic.frame=CGRectMake(0, 0, 320, self.view.frame.size.height);
+    imagepic.image=[UIImage imageNamed:@"背景.png"];
+    imagepic.userInteractionEnabled=YES;
+    [self.view addSubview:imagepic];
+    [imagepic  release];
+    self.navigationItem.title=@"编辑分组";
+    lable=[[UITextField alloc]initWithFrame:CGRectMake(20, 20, 280,40)];
+    [lable setBackgroundColor:[UIColor  whiteColor]];
+    [lable setFont:[UIFont systemFontOfSize:20]];
+    lable.text=self.TreamName;
+    lable.delegate=self;
+    lable.clearsOnBeginEditing = YES;
+    
+    lable.clearButtonMode = UITextFieldViewModeWhileEditing;
+    lable.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+    [lable setBorderStyle:UITextBorderStyleRoundedRect];
+    indexDelete=0;
+    //    lable.clearButtonMode = UITextFieldViewModeWhileEditing;
+    //    lable.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+    
+    [imagepic addSubview:lable];
+    
+    UIButton *butontuichu=[UIButton buttonWithType:UIButtonTypeCustom];
+    [butontuichu setFrame:CGRectMake(20,70, 280, 50)];
+    [butontuichu addTarget:self action:@selector(deleteTream) forControlEvents:UIControlEventTouchUpInside];
+    [butontuichu setImage:[UIImage imageNamed:@"hong.png"] forState:UIControlStateNormal];
+    [imagepic addSubview:butontuichu];
+    butontuichu.tag=3663;
+    
+    UILabel *lable1221=[[UILabel alloc]initWithFrame:CGRectMake(20, 70, 280, 50)];
+    [lable1221 setText:@"删除该组"];
+    [lable1221 setBackgroundColor:[UIColor clearColor]] ;
+    [imagepic addSubview:lable1221];
+    [lable1221 setTextAlignment:NSTextAlignmentCenter];
+    [lable1221 release];
+    
+    UIBarButtonItem* backItem = [[UIBarButtonItem alloc] initWithTitle:@"保存" style:UIBarButtonItemStyleBordered target:self action:@selector(addTream)];
+	backItem.tag = 90;
+	self.navigationItem.rightBarButtonItem = backItem;
+    [backItem release];
+}
+-(void)deleteTream
+{
+    indexDelete=10;
+    self.view.userInteractionEnabled=NO;
+
+    NSString *post = [NSString stringWithFormat:@"treamid=%@",self.strUid];
+    [SVProgressHUD showInView:nil status:@"请稍等.."];
+
+    //将post数据转换为 NSASCIIStringEncoding 编码格式
+    NSData *postData = [post dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES];
+    
+    
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    //要post的地址/
+    //    [request setURL:[NSURL URLWithString:@"http://119.44.220.4/mobileaddtream"]];
+    
+    NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
+    NSString *url = [user objectForKey:@"url"]; 
+    
+    [request setURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@mobiledeletetream?",url]]];
+    
+    //    [request setURL:[NSURL URLWithString:@"http://172.16.11.6/mobilelogin"]];
+    
+    //post类型
+    [request setHTTPMethod:@"POST"];
+    
+    
+    
+    //设置post数据
+    [request setHTTPBody:postData];
+    //创建链接
+    NSURLConnection * conn1 = [[[NSURLConnection alloc] initWithRequest:request delegate:self] autorelease];
+    [request release];
+
+
+
+}
+-(void)addTream
+{
+    [lable resignFirstResponder];
+    if ([lable.text length]>0&&[lable.text length]<9) {
+        if (![self kongge:lable.text]) {
+            [SVProgressHUD showAbnormalThenDismiss:@"组名不能全为空格"];
+            
+        }else{
+            self.view.userInteractionEnabled=NO;
+
+            [SVProgressHUD showInView:nil status:@"请稍等.."];
+            NSString *post = [NSString stringWithFormat:@"newname=%@&treamid=%@",lable.text,self.strUid];
+            //    NSLog(@"%@",post);
+            //将post数据转换为 NSASCIIStringEncoding 编码格式
+            NSData *postData = [post dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES];
+            
+            
+            NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+            //要post的地址/
+            //    [request setURL:[NSURL URLWithString:@"http://119.44.220.4/mobileaddtream"]];
+            NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
+            NSString *url = [user objectForKey:@"url"]; 
+            
+            [request setURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@mobileedittream?",url]]];
+            
+            //    [request setURL:[NSURL URLWithString:@"http://172.16.11.6/mobilelogin"]];
+            
+            //post类型
+            [request setHTTPMethod:@"POST"];
+            
+            
+            
+            //设置post数据
+            [request setHTTPBody:postData];
+            //创建链接
+            NSURLConnection * conn1 = [[[NSURLConnection alloc] initWithRequest:request delegate:self] autorelease];
+            [request release];
+        }
+    }else{
+        
+        [SVProgressHUD showAbnormalThenDismiss:@"组名在1到8位之间"];
+        
+        
+    }
+    
+    
+    
+}
+#pragma mark -connect
+-(void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+{
+    [_data setLength:0];
+}
+-(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+{
+    [_data appendData:data];
+    
+}
+-(void)connectionDidFinishLoading:(NSURLConnection *)connection
+{
+    self.view.userInteractionEnabled=YES;
+
+    //    NSError *error;
+    [SVProgressHUD dismiss];
+    
+    NSString *str=[[NSString alloc]initWithData:_data encoding:NSUTF8StringEncoding];
+    if ([str intValue]==0) {
+        if (indexDelete==10) {
+             [SVProgressHUD showAbnormalThenDismiss:@"删除成功"];
+  
+
+        }else{
+            [SVProgressHUD showAbnormalThenDismiss:@"修改成功"];
+           
+        }
+       
+//        [[NSNotificationCenter defaultCenter]postNotificationName:@"Chage" object:@"123456" ];
+        [self.delegate DeleteTreamViewMessage:nil];
+        [self performSelector:@selector(back) withObject:self afterDelay:0.3];
+        
+    }else{
+        if (indexDelete==10) {
+            [SVProgressHUD showAbnormalThenDismiss:@"删除失败"];
+        }else{
+            [SVProgressHUD showAbnormalThenDismiss:@"修改失败"];
+            
+        }
+        
+    }
+    
+    
+}
+-(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+{
+    [SVProgressHUD showAbnormalThenDismiss:@"请检测网络"];
+
+    self.view.userInteractionEnabled=YES;
+}
+-(void)back
+{
+    
+    [self.navigationController popViewControllerAnimated:YES];
+    
+}
+
+-(BOOL)kongge:(NSString *)str
+{
+    
+    for (int i=0; i<[str length]; i++) {
+        NSString *str1=[str substringWithRange:NSMakeRange(i, 1)];
+        if ([str1 isEqualToString:@" "]) {
+            
+        }else{
+            
+            return YES;
+            
+        }
+    }
+    return NO;
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+@end

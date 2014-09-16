@@ -1,0 +1,106 @@
+//
+//  FriengList.m
+//  电视微信
+//
+//  Created by 陈 琨 on 13-11-5.
+//  Copyright (c) 2013年 黑小刚. All rights reserved.
+//
+
+#import "FriengList.h"
+#import "Header.h"
+@implementation FriengList
+- (id)init
+{
+	self = [super init];
+   _data=[[NSMutableData alloc]init];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(Chage:) name:@"Chage" object:nil];
+
+    
+	return self;
+}
+-(void)Chage:(NSNotification *)notifacation
+{
+    NSLog(@"lllllllllllllllllllll");
+    NSString *str=(NSString *)notifacation.object;
+    //    NSLog(@"%@",str);
+    if ([str length]>3) {
+        NSUserDefaults *userDefaults=[NSUserDefaults standardUserDefaults];
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"Chage" object:@"" ];
+        
+        NSArray *arrr=  [userDefaults arrayForKey:@"yonghu"];
+        [self request:arrr];
+    }
+    //    NSLog(@"wwwwwwwwwwwwgg");
+    
+    
+    
+}
+-(void)request:(NSArray *)arr
+{
+    
+    NSString *post = [NSString stringWithFormat:@"userId=%@&passWord=%@",[arr objectAtIndex:0],[arr objectAtIndex:1]];
+    NSLog(@"post=%@",post);
+    //将post数据转换为 NSASCIIStringEncoding 编码格式
+    NSData *postData = [post dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES];
+    
+    
+    NSMutableURLRequest *request = [[[NSMutableURLRequest alloc] init] autorelease];
+    //要post的地址/
+    //    [request setURL:[NSURL URLWithString:@"http://119.44.220.4/mobilelogin"]];
+    NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
+    NSString *url = [user objectForKey:@"url"]; 
+    [request setURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@mobilelogin?",url]]];
+    
+    //    [request setURL:[NSURL URLWithString:@"http://172.16.4.5:8080/TSSP/mobilelogin"]];
+    
+    //post类型
+    [request setHTTPMethod:@"POST"];
+    
+    
+    
+    //设置post数据
+    [request setHTTPBody:postData];
+    //创建链接
+    NSURLConnection * conn1 = [[[NSURLConnection alloc] initWithRequest:request delegate:self] autorelease];
+    
+    
+    
+    
+}
+#pragma mark -connect
+-(void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+{
+    [_data setLength:0];
+}
+-(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+{
+    [_data appendData:data];
+    
+}
+-(void)connectionDidFinishLoading:(NSURLConnection *)connection
+{
+    
+    NSError *error;
+    
+    NSArray *arrPerson= [NSJSONSerialization JSONObjectWithData:_data options:kNilOptions error:&error ];
+//    NSLog(@"arrPerson=%@",arrPerson);
+    if (arrPerson==NULL) {
+        ;
+    }else{
+        NSUserDefaults *userDefaults=[NSUserDefaults standardUserDefaults];
+        [userDefaults setObject:arrPerson forKey:@"person"];
+        NSMutableDictionary *dict=[[NSMutableDictionary alloc]init];
+        for (int i=0; i<[arrPerson count]; i++) {
+            
+            [dict setObject:[arrPerson  objectAtIndex:i] forKey:[[arrPerson  objectAtIndex:i]objectForKey:@"f_UId" ]];
+        }
+        
+        [userDefaults setObject:dict forKey:@"personF_Uid"];
+        [dict release];
+//        [self shuju];
+//        [_tableView reloadData];
+        
+    }
+}
+
+@end

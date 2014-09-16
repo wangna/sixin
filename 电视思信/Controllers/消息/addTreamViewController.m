@@ -1,0 +1,222 @@
+//
+//  addTreamViewController.m
+//  电视微信
+//
+//  Created by 陈 琨 on 13-10-24.
+//  Copyright (c) 2013年 黑小刚. All rights reserved.
+//
+
+#import "addTreamViewController.h"
+#import "SVProgressHUD.h"
+#import "Header.h"
+@interface addTreamViewController ()
+
+@end
+
+@implementation addTreamViewController
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+    [window viewWithTag:123].hidden=YES;
+	// Do any additional setup after loading the view.
+    _data=[[NSMutableData alloc]init];
+//    NSUserDefaults *userDefaults=[NSUserDefaults standardUserDefaults];
+//    NSArray *array= [userDefaults arrayForKey:@"person"];
+//    self.strUid= [[array objectAtIndex:0] objectForKey:@"UId"];
+    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"背景.png"]]];
+    UIImageView *imagepic=[[UIImageView alloc]init];
+    imagepic.frame=CGRectMake(0, 0, 320, self.view.frame.size.height);
+    imagepic.image=[UIImage imageNamed:@"背景.png"];
+    imagepic.userInteractionEnabled=YES;
+    [self.view addSubview:imagepic];
+    [imagepic  release];
+    self.navigationItem.title=@"添加新组";
+
+//    UILabel *lableSearch=[[UILabel alloc]initWithFrame:CGRectMake(25, 20, 200, 30)];
+//    lableSearch.text=@"添加新组";
+//    [lableSearch setFont:[UIFont fontWithName:@"Heiti SC" size:16]];
+//    
+//    [lableSearch setBackgroundColor:[UIColor clearColor]];
+//    [self.view addSubview:lableSearch];
+//    [lableSearch release];
+    
+    
+    
+    lable=[[UITextField alloc]initWithFrame:CGRectMake(20, 20, 280,40)];
+    [lable setBackgroundColor:[UIColor  whiteColor]];
+    [lable setFont:[UIFont systemFontOfSize:20]];
+    lable.text=@"请输入组名";
+    lable.delegate=self;
+    lable.clearsOnBeginEditing = NO;
+
+    lable.clearButtonMode = UITextFieldViewModeWhileEditing;
+    lable.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+    [lable setBorderStyle:UITextBorderStyleRoundedRect];
+
+//    lable.clearButtonMode = UITextFieldViewModeWhileEditing;
+//    lable.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+    
+    [imagepic addSubview:lable];
+        
+    UIBarButtonItem *temporaryBarButtonItem = [[UIBarButtonItem alloc] init];
+    temporaryBarButtonItem.title =@"返回";
+    self.navigationItem.backBarButtonItem = temporaryBarButtonItem;
+    [temporaryBarButtonItem release];
+    UIBarButtonItem* backItem = [[UIBarButtonItem alloc] initWithTitle:@"完成" style:UIBarButtonItemStyleBordered target:self action:@selector(addTream)];
+	backItem.tag = 90;
+	self.navigationItem.rightBarButtonItem = backItem;
+    [backItem release];
+}
+-(void)addTream
+{
+    [lable resignFirstResponder];
+    if ([lable.text length]>0&&[lable.text length]<9) {
+        if (![self kongge:lable.text]) {
+            [SVProgressHUD showAbnormalThenDismiss:@"组名不能全为空格"];
+
+        }else{
+    [SVProgressHUD showInView:nil status:@"请稍等.."];
+    NSString *post = [NSString stringWithFormat:@"newname=%@&UID=%@",lable.text,self.strUid];
+//    NSLog(@"%@",post);
+    //将post数据转换为 NSASCIIStringEncoding 编码格式
+    NSData *postData = [post dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES];
+    
+    
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    //要post的地址/
+//    [request setURL:[NSURL URLWithString:@"http://119.44.220.4/mobileaddtream"]];
+            NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
+            NSString *url = [user objectForKey:@"url"];
+            [request setURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@mobileaddtream?",url]]];
+
+    //    [request setURL:[NSURL URLWithString:@"http://172.16.11.6/mobilelogin"]];
+    
+    //post类型
+    [request setHTTPMethod:@"POST"];
+    
+    
+    
+    //设置post数据
+    [request setHTTPBody:postData];
+    //创建链接
+    NSURLConnection * conn1 = [[[NSURLConnection alloc] initWithRequest:request delegate:self] autorelease];
+    [request release];
+        }
+    }else{
+    
+        [SVProgressHUD showAbnormalThenDismiss:@"组名在1到8位之间"];
+    
+    
+    }
+
+
+
+}
+#pragma mark -connect
+-(void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+{
+    [_data setLength:0];
+}
+-(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+{
+    [_data appendData:data];
+    
+}
+-(void)connectionDidFinishLoading:(NSURLConnection *)connection
+{
+    
+//    NSError *error;
+    [SVProgressHUD dismiss];
+
+    NSString *str=[[NSString alloc]initWithData:_data encoding:NSUTF8StringEncoding];
+    if ([str intValue]==0) {
+        [SVProgressHUD showAbnormalThenDismiss:@"添加成功"];
+//        [[NSNotificationCenter defaultCenter]postNotificationName:@"Chage" object:@"123456" ];
+        [self.delegate addTreamViewMessage:nil];
+        [self performSelector:@selector(back) withObject:self afterDelay:0.3];
+        
+    }else{
+        [SVProgressHUD showAbnormalThenDismiss:@"添加失败"];
+      
+    
+    }
+
+    
+}
+-(BOOL)kongge:(NSString *)str
+{
+    
+    for (int i=0; i<[str length]; i++) {
+        NSString *str1=[str substringWithRange:NSMakeRange(i, 1)];
+        if ([str1 isEqualToString:@" "]) {
+            
+        }else{
+            
+            return YES;
+            
+        }
+    }
+    return NO;
+}
+
+-(void)back
+{
+
+[self.navigationController popViewControllerAnimated:YES];
+
+}
+-(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+{
+
+
+    [SVProgressHUD dismiss];
+    [SVProgressHUD showAbnormalThenDismiss:@"请检测网络"];
+
+
+}
+-(BOOL)textFieldShouldBeginEditing:(UITextField *)textField
+{
+    
+    
+    return YES;
+}
+-(void) textFieldDidBeginEditing:(UITextField *)textField
+{
+}
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    //    [textField resignFirstResponder];
+    return YES;
+}
+-(void)textFieldDidEndEditing:(UITextField *)textField
+{
+    
+    
+    
+    
+}
+-(void)dealloc
+{
+    [super dealloc];
+    [_data release];
+    [lable release];
+
+
+}
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+@end

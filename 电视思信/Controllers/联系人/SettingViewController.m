@@ -1,0 +1,667 @@
+//
+//  SettingViewController.m
+//  电视微信
+//
+//  Created by 陈 琨 on 13-9-22.
+//  Copyright (c) 2013年 黑小刚. All rights reserved.
+//
+
+#import "SettingViewController.h"
+#import "AsyncImageView.h"
+#import "XiuGaiViewController.h"
+#import "Header.h"
+@interface SettingViewController ()
+
+@end
+
+@implementation SettingViewController
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+
+-(void)viewWillAppear:(BOOL)animated
+{
+
+    [UIApplication sharedApplication].statusBarHidden=NO;
+    [self.navigationController setNavigationBarHidden:NO];
+
+
+}
+- (void)connect{
+  
+    NSString *post = [NSString stringWithFormat:@"UID=%@",self.strUid];
+//    NSLog(@"%@",post);
+    //将post数据转换为 NSASCIIStringEncoding 编码格式
+    NSData *postData = [post dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES];
+    
+    
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    //要post的地址/
+//    [request setURL:[NSURL URLWithString:@"http://119.44.220.4/editload"]];
+    NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
+    NSString *url = [user objectForKey:@"url"]; 
+    
+    [request setURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@editload?",url]]];
+
+    //    [request setURL:[NSURL URLWithString:@"http://172.16.11.6/mobilelogin"]];
+    
+    //post类型
+    [request setHTTPMethod:@"POST"];
+    
+    
+    
+    //设置post数据
+    [request setHTTPBody:postData];
+    //创建链接
+    NSURLConnection * conn1 = [[[NSURLConnection alloc] initWithRequest:request delegate:self] autorelease];
+    
+    
+    [request release];
+   
+}
+#pragma mark -connect
+-(void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+{
+    [_data setLength:0];
+}
+-(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+{
+    [_data appendData:data];
+    
+}
+-(void)connectionDidFinishLoading:(NSURLConnection *)connection
+{
+    
+    NSString *str=[[NSString alloc]initWithData:_data encoding:NSUTF8StringEncoding];
+    [self.array addObjectsFromArray:[str componentsSeparatedByString:@","]];
+//    self.array=[str componentsSeparatedByString:@","];
+    NSLog(@"ssss%@",self.array);
+    [str release];
+
+
+    listTable = [[[UITableView alloc] initWithFrame:CGRectMake(0,5, 320,self.view.frame.size.height-0) style:UITableViewStyleGrouped] autorelease];
+    //    [listTable setBackgroundColor:[UIColor clearColor]];
+    listTable.showsVerticalScrollIndicator = NO;
+    [listTable setBackgroundColor:[UIColor clearColor]];
+    [listTable setBackgroundView:nil];
+    //    [listTable.layer setBackgroundColor:[UIColor whiteColor].CGColor];
+    //    [listTable setClipsToBounds:YES];
+    
+    //    [listTable setShowsHorizontalScrollIndicator:NO];
+    //    [listTable setShowsVerticalScrollIndicator:NO];
+//    [listTable setBounces:NO];
+    [listTable setDelegate:self];
+    [listTable setDataSource:self];
+    [listTable setTag:666];
+    [self.view addSubview:listTable];
+    
+    /*
+    
+    UIImageView *imageview=[[UIImageView alloc]initWithFrame:CGRectMake(10, 280, 300, 40)];
+    imageview.image=[UIImage imageNamed:@"添加好.png"];
+    [self.view addSubview:imageview];
+    [imageview release];
+    UILabel *lable1=[[UILabel alloc]initWithFrame:CGRectMake(20, 280, 300, 40)];
+    lable1.text=@"修改密码";
+    [lable1 setBackgroundColor:[UIColor clearColor]];
+    [lable1 setTextAlignment:NSTextAlignmentLeft];
+    [self.view addSubview:lable1];
+    [lable1 release];
+    UIButton *button=[[UIButton alloc]initWithFrame:CGRectMake(10, 280, 300, 40)];
+    [button addTarget:self action:@selector(pass) forControlEvents:UIControlEventTouchUpInside];
+    //    [button setTitle:@"修改密码" forState:UIControlStateNormal];
+    //    [button.titleLabel setTextAlignment:NSTextAlignmentLeft];
+    [button setBackgroundColor:[UIColor clearColor]];
+    [self.view addSubview:button];
+    [button release];
+    
+    UIImageView *imageview2=[[UIImageView alloc]initWithFrame:CGRectMake(285, 290, 13,20)];
+    imageview2.image=[UIImage imageNamed:@"setting_row.png"];
+    
+    [self.view addSubview:imageview2];
+    [imageview2 release];
+    
+    UIButton *butontuichu=[UIButton buttonWithType:UIButtonTypeCustom];
+    [butontuichu setFrame:CGRectMake(10, 340, 300, 40)];
+    [butontuichu addTarget:self action:@selector(push) forControlEvents:UIControlEventTouchUpInside];
+    [butontuichu setImage:[UIImage imageNamed:@"hong.png"] forState:UIControlStateNormal];
+    [self.view addSubview:butontuichu];
+    butontuichu.tag=3663;
+    
+    UILabel *lable1221=[[UILabel alloc]initWithFrame:CGRectMake(10, 340, 300, 40)];
+    [lable1221 setText:@"退出账户"];
+    [lable1221 setBackgroundColor:[UIColor clearColor]] ;
+    [self.view addSubview:lable1221];
+    [lable1221 setTextAlignment:NSTextAlignmentCenter];
+    [lable1221 release];
+*/
+  }
+-(void)push
+{
+//    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+//   
+//    [window.rootViewController.modalViewController popViewControllerAnimated:YES];
+//    [[NSNotificationCenter defaultCenter]postNotificationName:@"Backdenglu" object:@"123"];
+    UIAlertView *av=[[UIAlertView alloc]initWithTitle:@"是否退出当前账号" message:@"" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"退出账号",nil];
+ 
+    [av show];
+    //        [str release];
+    [av release];
+
+
+}
+
+-(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (buttonIndex==0) {
+//        NSLog(@"00");
+    }
+    if (buttonIndex==1) {
+        [self back11];
+//        NSLog(@"10");
+    }
+}
+-(void)back11
+{
+    [self.tabBarController.navigationController popViewControllerAnimated:YES];
+
+
+
+}
+-(void)pass
+{
+
+    XiuGaiViewController *search=[[XiuGaiViewController alloc]init];
+    [search setHidesBottomBarWhenPushed:(BOOL)(1)];
+    search.index=5;
+    search.strUID=self.strUid;
+    search.Message=self.array;
+    [self.navigationController pushViewController:search animated:YES];
+    [search release];
+
+
+}
+-(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+{
+    
+}
+-(void)dealloc
+{
+    [super dealloc];
+    [_data release];
+ 
+
+}
+
+-(void)XiuGaiViewMessage:(id)message
+{
+//    NSLog(@"lllllllllll");
+
+    NSArray *aaa=(NSArray *)message;
+    if ([[aaa objectAtIndex:1] intValue]==2) {
+        [self.array replaceObjectAtIndex:0 withObject:[aaa objectAtIndex:0]];
+        if (listTable!=nil) {
+            [listTable removeFromSuperview];
+        }
+        listTable = [[[UITableView alloc] initWithFrame:CGRectMake(0,5, 320,self.view.frame.size.height-0) style:UITableViewStyleGrouped] autorelease];
+        //    [listTable setBackgroundColor:[UIColor clearColor]];
+        listTable.showsVerticalScrollIndicator = NO;
+        [listTable setBackgroundColor:[UIColor clearColor]];
+        [listTable setBackgroundView:nil];
+        //    [listTable.layer setBackgroundColor:[UIColor whiteColor].CGColor];
+        //    [listTable setClipsToBounds:YES];
+        
+        //    [listTable setShowsHorizontalScrollIndicator:NO];
+        //    [listTable setShowsVerticalScrollIndicator:NO];
+        //    [listTable setBounces:NO];
+        [listTable setDelegate:self];
+        [listTable setDataSource:self];
+        [listTable setTag:666];
+        [self.view addSubview:listTable];
+        
+    }
+    if ([[aaa objectAtIndex:1] intValue]==3) {
+        [self.array replaceObjectAtIndex:4 withObject:[aaa objectAtIndex:0]];
+        if (listTable!=nil) {
+            [listTable removeFromSuperview];
+        }
+        listTable = [[[UITableView alloc] initWithFrame:CGRectMake(0,5, 320,self.view.frame.size.height-0) style:UITableViewStyleGrouped] autorelease];
+        //    [listTable setBackgroundColor:[UIColor clearColor]];
+        listTable.showsVerticalScrollIndicator = NO;
+        [listTable setBackgroundColor:[UIColor clearColor]];
+        [listTable setBackgroundView:nil];
+        //    [listTable.layer setBackgroundColor:[UIColor whiteColor].CGColor];
+        //    [listTable setClipsToBounds:YES];
+        
+        //    [listTable setShowsHorizontalScrollIndicator:NO];
+        //    [listTable setShowsVerticalScrollIndicator:NO];
+        //    [listTable setBounces:NO];
+        [listTable setDelegate:self];
+        [listTable setDataSource:self];
+        [listTable setTag:666];
+        [self.view addSubview:listTable];
+    }
+    if ([[aaa objectAtIndex:1] intValue]==4) {
+        [self.array replaceObjectAtIndex:1 withObject:[aaa objectAtIndex:0]];
+        if (listTable!=nil) {
+            [listTable removeFromSuperview];
+        }
+        listTable = [[[UITableView alloc] initWithFrame:CGRectMake(0,5, 320,self.view.frame.size.height-0) style:UITableViewStyleGrouped] autorelease];
+        //    [listTable setBackgroundColor:[UIColor clearColor]];
+        listTable.showsVerticalScrollIndicator = NO;
+        [listTable setBackgroundColor:[UIColor clearColor]];
+        [listTable setBackgroundView:nil];
+        //    [listTable.layer setBackgroundColor:[UIColor whiteColor].CGColor];
+        //    [listTable setClipsToBounds:YES];
+        
+        //    [listTable setShowsHorizontalScrollIndicator:NO];
+        //    [listTable setShowsVerticalScrollIndicator:NO];
+        //    [listTable setBounces:NO];
+        [listTable setDelegate:self];
+        [listTable setDataSource:self];
+        [listTable setTag:666];
+        [self.view addSubview:listTable];
+    }
+
+    
+}
+
+-(void)newMsgCome1:(NSNotification *)notifacation
+{
+    [self.navigationController setNavigationBarHidden:NO];
+
+    [UIApplication sharedApplication].statusBarHidden=NO;
+    //    NSLog(@"wwwww=%@",notifacation.object);
+    //[WCMessageObject save:notifacation.object];
+    UIImage *imageC=(UIImage *)notifacation.object;
+    if (imageC!=nil) {
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"Back" object:nil];
+       
+            imageHead=imageC;
+            if (listTable!=nil) {
+                [listTable removeFromSuperview];
+            }
+        listTable = [[[UITableView alloc] initWithFrame:CGRectMake(0,5, 320,self.view.frame.size.height-50) style:UITableViewStyleGrouped] autorelease];
+        //    [listTable setBackgroundColor:[UIColor clearColor]];
+        listTable.showsVerticalScrollIndicator = NO;
+        [listTable setBackgroundColor:[UIColor clearColor]];
+        [listTable setBackgroundView:nil];
+        //    [listTable.layer setBackgroundColor:[UIColor whiteColor].CGColor];
+        //    [listTable setClipsToBounds:YES];
+        
+            [listTable setShowsHorizontalScrollIndicator:NO];
+        //    [listTable setShowsVerticalScrollIndicator:NO];
+        //    [listTable setBounces:NO];
+        [listTable setDelegate:self];
+        [listTable setDataSource:self];
+        [listTable setTag:666];
+        [self.view addSubview:listTable];
+        
+
+    }
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    self.navigationItem.title=@"设置";
+    UITabBarItem *item = [[UITabBarItem alloc] initWithTitle:@"设置" image:[UIImage imageNamed:@"设置30.png"] tag:2];
+ 
+
+//    [item setImage:[UIImage imageNamed:@"设置30.png"]];
+//    [item setFinishedSelectedImage:[UIImage imageNamed:@"设置 蓝30.png"]
+//       withFinishedUnselectedImage:[UIImage imageNamed:@"设置30.png"]];
+    self.tabBarItem = item;
+//    [self.tabBarItem setImage:[UIImage imageNamed:@"设置30.png"]];
+    [item release];
+//    self.navigationController.navigationBar.tintColor=[UIColor colorWithPatternImage:[UIImage imageNamed:@"蓝条.png"]];
+    self.navigationController.navigationBar.tintColor = [UIColor colorWithRed:0.035 green:0.117 blue:0.184 alpha:0.286];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(newMsgCome1:) name:@"Back" object:nil];
+
+    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"beijing.png"]]];
+    _array=[[NSMutableArray alloc]init];
+    _data=[[NSMutableData alloc]init];
+    NSUserDefaults *userDefaults=[NSUserDefaults standardUserDefaults];
+    NSDictionary * array= [userDefaults dictionaryForKey:@"personF_Uid"];
+    self.strUid= [[array objectForKey:[[array allKeys] objectAtIndex:0]]objectForKey:@"UId"] ;
+
+    [self connect];
+
+    
+
+	// Do any additional setup after loading the view.
+}
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    if (section==0) {
+
+          return 5;
+    }else{
+    
+    
+        return 1;
+    
+    }
+    
+}
+
+- (float)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (indexPath.section==0) {
+ 
+    if (indexPath.row== 0) {
+        return 80;
+    }
+    else
+        return 40;
+
+}
+    if (indexPath.section==1) {
+        
+
+            return 40;
+    }
+    if (indexPath.section==2) {
+        
+        
+        return 40;
+    }
+    return 40;
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 3;
+}
+//100134
+-(void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
+
+
+}
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingImage:(UIImage *)aImage editingInfo:(NSDictionary *)editingInfo
+{
+    
+//    m_imageView.image = aImage;
+    
+    [picker dismissModalViewControllerAnimated:YES];
+    
+}
+-(void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+//    NSLog(@"%d",buttonIndex);
+    if (buttonIndex==0) {
+
+        XiuGaiViewController *xiu=[[XiuGaiViewController alloc]init];
+        [xiu setHidesBottomBarWhenPushed:(BOOL)(1)];
+        xiu.index=10;
+        xiu.strUID=self.strUid;
+        xiu.Message=self.array;
+        [self.navigationController pushViewController:xiu animated:NO];
+        [xiu release];
+            }
+    
+    if (buttonIndex==1) {
+
+        XiuGaiViewController *xiu=[[XiuGaiViewController alloc]init];
+        [xiu setHidesBottomBarWhenPushed:(BOOL)(1)];
+        xiu.index=11;
+        xiu.strUID=self.strUid;
+        xiu.Message=self.array;
+        [self.navigationController pushViewController:xiu animated:NO];
+        [xiu release];
+
+    }
+   }
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (indexPath.section==0) {
+
+    if (indexPath.row==0) {
+        UIActionSheet *aActionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"拍照",@"从相册中选取", nil];
+        aActionSheet.actionSheetStyle = UIActionSheetStyleBlackTranslucent;
+       [aActionSheet showInView:[UIApplication sharedApplication].keyWindow];
+        [aActionSheet release];
+    }else{
+        if (indexPath.row!=1) {
+      
+        XiuGaiViewController *search=[[XiuGaiViewController alloc]init];
+        [search setHidesBottomBarWhenPushed:(BOOL)(1)];
+        search.delegate=self;
+    search.index=indexPath.row;
+    search.strUID=self.strUid;
+    search.Message=self.array;
+        [self.navigationController pushViewController:search animated:YES];
+        [search release];
+        }
+    }
+        
+    }
+    if (indexPath.section==1) {
+    }
+    if (indexPath.section==2) {
+    }
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+   
+        static NSString * listCell = @"listCell";
+        UITableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:listCell];
+        if (cell == NULL) {
+            cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:listCell] autorelease];
+//            [cell setBackgroundColor:[UIColor whiteColor]];
+//            UIImageView *imageview=[[UIImageView alloc]initWithFrame:CGRectMake(10, 280, 300, 40)];
+//            imageview.image=[UIImage imageNamed:@"添加好.png"];
+//            [cell addSubview:imageview];
+//            [imageview release];
+
+            [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
+//            UIImageView *imageview2=[[UIImageView alloc]initWithFrame:CGRectMake(280, 40, 11,16)];
+//            imageview2.image=[UIImage imageNamed:@"UpAccessory@2x.png"];
+//            imageview2.center=CGPointMake(260, 40)
+//;
+//            [cell.contentView addSubview:imageview2];
+//            [imageview2 release];
+            
+        }
+    for (UIView *vvv in cell.contentView.subviews) {
+        if ([vvv isKindOfClass:[UIView class]]) {
+            [vvv removeFromSuperview];
+        }
+        if ([vvv isKindOfClass:[AsyncImageView class]]) {
+            [vvv removeFromSuperview];
+        }
+        
+        
+        
+    }
+
+    if (indexPath.section==0) {
+
+        if (indexPath.row==0) {
+ 
+        AsyncImageView * contentPic = [[[AsyncImageView alloc] initWithFrame:CGRectMake(200, 10, 60, 60)] autorelease];
+            if (imageHead==nil) {
+                        contentPic.urlString = [NSString stringWithFormat:@"%@/HeadPic/%@",HTTPHEADPIC,[self.array objectAtIndex:3]];;
+            }else{
+            
+                contentPic.image=imageHead;
+            
+            }
+
+        [cell.contentView addSubview:contentPic] ;
+        
+
+        
+        UILabel *lablequan1=[[UILabel alloc]initWithFrame:CGRectMake(10,20, 70, 40)];
+        [lablequan1 setBackgroundColor:[UIColor clearColor]];
+//        [lablequan1 setTextColor:[UIColor colorWithRed:0.83 green:0.82 blue:0.92 alpha:1.0]];
+        [lablequan1 setFont:[UIFont systemFontOfSize:18]];
+        lablequan1.text=@"头像";
+        [lablequan1 setTextAlignment:NSTextAlignmentLeft];
+        [cell.contentView addSubview:lablequan1];
+        [lablequan1 release];
+        UIImageView *imageview2=[[UIImageView alloc]initWithFrame:CGRectMake(270, 30, 13,20)];
+        imageview2.image=[UIImage imageNamed:@"setting_row.png"];
+//        imageview2.center=CGPointMake(280, cell.center.y+20);
+        [cell.contentView addSubview:imageview2];
+        [imageview2 release];
+        
+        }else{
+        
+            if (indexPath.row==1) {
+                UILabel *lablequan1=[[UILabel alloc]initWithFrame:CGRectMake(10,5, 70, 30)];
+                [lablequan1 setBackgroundColor:[UIColor clearColor]];
+                //        [lablequan1 setTextColor:[UIColor colorWithRed:0.83 green:0.82 blue:0.92 alpha:1.0]];
+                [lablequan1 setFont:[UIFont systemFontOfSize:18]];
+                lablequan1.text=@"账号";
+                [lablequan1 setTextAlignment:NSTextAlignmentLeft];
+                [cell.contentView addSubview:lablequan1];
+                [lablequan1 release];
+//                UIImageView *imageview2=[[UIImageView alloc]initWithFrame:CGRectMake(290, 5, 15,25)];
+//                imageview2.image=[UIImage imageNamed:@"setting_row.png"];
+//                imageview2.center=CGPointMake(280, cell.center.y+5);
+//                [cell.contentView addSubview:imageview2];
+//                [imageview2 release];
+                UILabel *lablequanMessage=[[UILabel alloc]initWithFrame:CGRectMake(50,5, 210, 40)];
+                [lablequanMessage setBackgroundColor:[UIColor clearColor]];
+                [lablequanMessage setTextColor:[UIColor colorWithRed:0.63 green:0.62 blue:0.62 alpha:0.9]];
+                [lablequanMessage setFont:[UIFont systemFontOfSize:18]];
+                lablequanMessage.text=[[self.array objectAtIndex:5] substringWithRange:NSMakeRange(0, [[self.array objectAtIndex:5] length]-1)];
+                [lablequanMessage setTextAlignment:NSTextAlignmentRight];
+                [cell.contentView addSubview:lablequanMessage];
+                [lablequanMessage release];
+            }
+            if (indexPath.row==2) {
+                UILabel *lablequan1=[[UILabel alloc]initWithFrame:CGRectMake(10,5, 70, 30)];
+                [lablequan1 setBackgroundColor:[UIColor clearColor]];
+                //        [lablequan1 setTextColor:[UIColor colorWithRed:0.83 green:0.82 blue:0.92 alpha:1.0]];
+                [lablequan1 setFont:[UIFont systemFontOfSize:18]];
+                lablequan1.text=@"昵称";
+                [lablequan1 setTextAlignment:NSTextAlignmentLeft];
+                [cell.contentView addSubview:lablequan1];
+                [lablequan1 release];
+                UIImageView *imageview2=[[UIImageView alloc]initWithFrame:CGRectMake(290, 40, 13,20)];
+                imageview2.image=[UIImage imageNamed:@"setting_row.png"];
+                imageview2.center=CGPointMake(280, cell.center.y);
+                [cell.contentView addSubview:imageview2];
+                [imageview2 release];
+                UILabel *lablequanMessage=[[UILabel alloc]initWithFrame:CGRectMake(50,5, 210, 30)];
+                [lablequanMessage setBackgroundColor:[UIColor clearColor]];
+                [lablequanMessage setTextColor:[UIColor colorWithRed:0.63 green:0.62 blue:0.62 alpha:0.9]];
+                [lablequanMessage setFont:[UIFont systemFontOfSize:18]];
+                lablequanMessage.text=[[self.array objectAtIndex:0] substringWithRange:NSMakeRange(1, [[self.array objectAtIndex:0] length]-1)];
+//                lablequanMessage.text=[self.array objectAtIndex:0];
+                [lablequanMessage setTextAlignment:NSTextAlignmentRight];
+                [cell.contentView addSubview:lablequanMessage];
+                [lablequanMessage release];
+            }
+            if (indexPath.row==3) {
+                UILabel *lablequan1=[[UILabel alloc]initWithFrame:CGRectMake(10,5, 70, 30)];
+                [lablequan1 setBackgroundColor:[UIColor clearColor]];
+                //        [lablequan1 setTextColor:[UIColor colorWithRed:0.83 green:0.82 blue:0.92 alpha:1.0]];
+                [lablequan1 setFont:[UIFont systemFontOfSize:18]];
+                lablequan1.text=@"邮箱";
+                [lablequan1 setTextAlignment:NSTextAlignmentLeft];
+                [cell.contentView addSubview:lablequan1];
+                [lablequan1 release];
+                UIImageView *imageview2=[[UIImageView alloc]initWithFrame:CGRectMake(290, 40, 13,20)];
+                imageview2.image=[UIImage imageNamed:@"setting_row.png"];
+                imageview2.center=CGPointMake(280, cell.center.y);
+                [cell.contentView addSubview:imageview2];
+                [imageview2 release];
+                UILabel *lablequanMessage=[[UILabel alloc]initWithFrame:CGRectMake(50,5, 210, 40)];
+                [lablequanMessage setBackgroundColor:[UIColor clearColor]];
+                [lablequanMessage setTextColor:[UIColor colorWithRed:0.63 green:0.62 blue:0.62 alpha:0.9]];
+                [lablequanMessage setFont:[UIFont systemFontOfSize:18]];
+                lablequanMessage.text=[self.array objectAtIndex:4];
+                [lablequanMessage setTextAlignment:NSTextAlignmentRight];
+                [cell.contentView addSubview:lablequanMessage];
+                [lablequanMessage release];
+            }
+            if (indexPath.row==4) {
+                UILabel *lablequan1=[[UILabel alloc]initWithFrame:CGRectMake(10,5, 70, 30)];
+                [lablequan1 setBackgroundColor:[UIColor clearColor]];
+                //        [lablequan1 setTextColor:[UIColor colorWithRed:0.83 green:0.82 blue:0.92 alpha:1.0]];
+                [lablequan1 setFont:[UIFont systemFontOfSize:18]];
+                lablequan1.text=@"手机";
+                [lablequan1 setTextAlignment:NSTextAlignmentLeft];
+                [cell.contentView addSubview:lablequan1];
+                [lablequan1 release];
+                UIImageView *imageview2=[[UIImageView alloc]initWithFrame:CGRectMake(290, 5, 13,20)];
+                imageview2.image=[UIImage imageNamed:@"setting_row.png"];
+                imageview2.center=CGPointMake(280, cell.center.y);
+                [cell.contentView addSubview:imageview2];
+                [imageview2 release];
+                UILabel *lablequanMessage=[[UILabel alloc]initWithFrame:CGRectMake(50,5, 210, 40)];
+                [lablequanMessage setBackgroundColor:[UIColor clearColor]];
+                [lablequanMessage setTextColor:[UIColor colorWithRed:0.63 green:0.62 blue:0.62 alpha:0.9]];
+                [lablequanMessage setFont:[UIFont systemFontOfSize:18]];
+                lablequanMessage.text=[self.array objectAtIndex:1];
+                [lablequanMessage setTextAlignment:NSTextAlignmentRight];
+                [cell.contentView addSubview:lablequanMessage];
+                [lablequanMessage release];
+            }
+    
+        
+    }
+    }
+       if (indexPath.section==1) {
+           UIImageView *imageview=[[UIImageView alloc]initWithFrame:CGRectMake(0, 0, 300, 40)];
+           imageview.image=[UIImage imageNamed:@"添加好.png"];
+           [cell.contentView addSubview:imageview];
+           [imageview release];
+           UILabel *lable1=[[UILabel alloc]initWithFrame:CGRectMake(10, 0, 300, 40)];
+           lable1.text=@"修改密码";
+           [lable1 setBackgroundColor:[UIColor clearColor]];
+           [lable1 setTextAlignment:NSTextAlignmentLeft];
+           [cell.contentView  addSubview:lable1];
+           [lable1 release];
+           UIButton *button=[[UIButton alloc]initWithFrame:CGRectMake(0, 0, 300, 40)];
+           [button addTarget:self action:@selector(pass) forControlEvents:UIControlEventTouchUpInside];
+           //    [button setTitle:@"修改密码" forState:UIControlStateNormal];
+           //    [button.titleLabel setTextAlignment:NSTextAlignmentLeft];
+           [button setBackgroundColor:[UIColor clearColor]];
+           [cell.contentView  addSubview:button];
+           [button release];
+           
+           UIImageView *imageview2=[[UIImageView alloc]initWithFrame:CGRectMake(275, 10, 13,20)];
+           imageview2.image=[UIImage imageNamed:@"setting_row.png"];
+           
+           [cell.contentView  addSubview:imageview2];
+           [imageview2 release];
+           
+           
+           
+       }
+    if (indexPath.section==2) {
+        UIButton *butontuichu=[UIButton buttonWithType:UIButtonTypeCustom];
+        [butontuichu setFrame:CGRectMake(0, 0, 300, 40)];
+        [butontuichu addTarget:self action:@selector(push) forControlEvents:UIControlEventTouchUpInside];
+        [butontuichu setImage:[UIImage imageNamed:@"hong.png"] forState:UIControlStateNormal];
+        [cell.contentView addSubview:butontuichu];
+        butontuichu.tag=3663;
+        
+        UILabel *lable1221=[[UILabel alloc]initWithFrame:CGRectMake(0, 0, 300, 40)];
+        [lable1221 setText:@"退出账户"];
+        [lable1221 setBackgroundColor:[UIColor clearColor]] ;
+        [cell.contentView addSubview:lable1221];
+        [lable1221 setTextAlignment:NSTextAlignmentCenter];
+        [lable1221 release];
+        
+        
+        
+    }
+            return cell;
+
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+@end

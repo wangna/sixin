@@ -1,0 +1,151 @@
+//
+//  AddFriengViewController.m
+//  电视微信
+//
+//  Created by 陈 琨 on 13-10-8.
+//  Copyright (c) 2013年 黑小刚. All rights reserved.
+//
+
+#import "AddFriengViewController.h"
+#import "SVProgressHUD.h"
+#import "Header.h"
+@interface AddFriengViewController ()
+
+@end
+
+@implementation AddFriengViewController
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+	// Do any additional setup after loading the view.
+    _data=[[NSMutableData alloc]init];
+    db=[[SUserDB alloc]init];
+
+    NSUserDefaults *userDefaults=[NSUserDefaults standardUserDefaults];
+    NSDictionary * array= [userDefaults dictionaryForKey:@"personF_Uid"];
+    self.strUID= [[array objectForKey:[[array allKeys] objectAtIndex:0]]objectForKey:@"UId"];
+    UIImageView *image11=[[UIImageView alloc]initWithFrame:CGRectMake(10, 10, 300, 80)];
+    image11.image=[UIImage imageNamed:@"添加好友.png"];
+    [self.view addSubview:image11];
+    image11.userInteractionEnabled=YES;
+        
+    UILabel *lable11=[[UILabel alloc]initWithFrame:CGRectMake(60, 20, 100, 40)];
+    [lable11 setBackgroundColor:[UIColor clearColor]];
+    [lable11 setTextColor:[UIColor blackColor]];
+    lable11.text=[NSString stringWithFormat:@"%@",self.dict.Midea];
+    [lable11 setTextAlignment:NSTextAlignmentLeft];
+    [image11 addSubview:lable11];
+    
+    [lable11  release];
+    UIButton *button=[UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [button setFrame:CGRectMake(175, 25, 50, 40)];
+    button.tag=101;
+    [button setTitle:@"接受" forState:UIControlStateNormal];
+    [button addTarget:self action:@selector(registered:) forControlEvents:UIControlEventTouchUpInside];
+    [button setBackgroundColor:[UIColor whiteColor]];
+    [image11 addSubview:button];
+    
+    UIButton *buttonRegistered=[UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [buttonRegistered setFrame:CGRectMake(240, 25, 50, 40)];
+    buttonRegistered.tag=100;
+    [buttonRegistered setTitle:@"拒绝" forState:UIControlStateNormal];
+    [buttonRegistered addTarget:self action:@selector(registered:) forControlEvents:UIControlEventTouchUpInside];
+    [buttonRegistered setBackgroundColor:[UIColor whiteColor]];
+    [image11 addSubview:buttonRegistered];
+
+
+}
+-(void)registered:(UIButton *)button
+{
+    [SVProgressHUD showInView:nil status:@"请稍等.."];
+    NSString *post = [NSString stringWithFormat:@"UID=%@&RID=%@&type=%@",self.strUID,self.dict.fuid,[NSString stringWithFormat:@"%d",button.tag-100]];
+    //将post数据转换为 NSASCIIStringEncoding 编码格式
+//    NSLog(@"%@",post);
+    NSData *postData = [post dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES];
+    
+    
+    NSMutableURLRequest *request = [[[NSMutableURLRequest alloc] init] autorelease];
+    //要post的地址/
+//    [request setURL:[NSURL URLWithString:@"http://119.44.220.4/mobileaddfriend"]];
+    NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
+    NSString *url = [user objectForKey:@"url"];
+    [request setURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@mobileaddfriend?",url]]];
+
+    //    [request setURL:[NSURL URLWithString:@"http://172.16.4.5:8080/TSSP/mobilelogin"]];
+    
+    //post类型
+    [request setHTTPMethod:@"POST"];
+    
+    
+    
+    //设置post数据
+    [request setHTTPBody:postData];
+    //创建链接
+    NSURLConnection * conn1 = [[[NSURLConnection alloc] initWithRequest:request delegate:self] autorelease];
+    
+
+
+
+
+}
+#pragma mark -connect
+-(void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+{
+    [_data setLength:0];
+}
+-(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+{
+    [_data appendData:data];
+    
+}
+-(void)connectionDidFinishLoading:(NSURLConnection *)connection
+{
+    [SVProgressHUD dismiss];
+    [SVProgressHUD showAbnormalThenDismiss:@"操作成功"];
+    NSString *arrjson= [[NSString alloc]initWithData:_data encoding:NSUTF8StringEncoding]; ;
+    if ([arrjson intValue]==0) {
+        [db createDataBase1];
+        [db deleteUserId:self.dict.fuid UserId:self.strUID];
+        [self.delegate LinkManViewMessage:nil];
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"Chage" object:@"123456" ];
+
+        [self.navigationController popViewControllerAnimated:YES];
+    }
+    
+}
+-(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+{
+    [SVProgressHUD dismiss];
+    [SVProgressHUD showAbnormalThenDismiss:@"添加失败"];
+    NSLog(@"%@",error);
+}
+-(void)dealloc
+{
+    [super dealloc];
+//    self.delegate=nil;
+    [_data release];
+    [db release];
+   
+    
+
+
+
+
+}
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+@end

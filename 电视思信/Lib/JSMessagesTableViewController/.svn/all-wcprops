@@ -1,0 +1,137 @@
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController
+END
+JSMessageInputView.h
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/JSMessageInputView.h
+END
+JSBubbleMessageCell.h
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/JSBubbleMessageCell.h
+END
+JSMessageInputView.m
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/JSMessageInputView.m
+END
+NSString+JSMessagesView.h
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/NSString+JSMessagesView.h
+END
+JSBubbleMessageCell.m
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/JSBubbleMessageCell.m
+END
+JSMessagesViewController.h
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/JSMessagesViewController.h
+END
+UIButton+JSMessagesView.h
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/UIButton+JSMessagesView.h
+END
+NSString+JSMessagesView.m
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/NSString+JSMessagesView.m
+END
+JSMessageSoundEffect.h
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/JSMessageSoundEffect.h
+END
+UIColor+JSMessagesView.h
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/UIColor+JSMessagesView.h
+END
+JSMessagesViewController.m
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/JSMessagesViewController.m
+END
+UIButton+JSMessagesView.m
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/UIButton+JSMessagesView.m
+END
+UIImage+JSMessagesView.h
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/UIImage+JSMessagesView.h
+END
+UIView+AnimationOptionsForCurve.h
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/UIView+AnimationOptionsForCurve.h
+END
+JSMessageSoundEffect.m
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/JSMessageSoundEffect.m
+END
+JSDismissiveTextView.h
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/JSDismissiveTextView.h
+END
+UIColor+JSMessagesView.m
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/UIColor+JSMessagesView.m
+END
+UIImage+JSMessagesView.m
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/UIImage+JSMessagesView.m
+END
+UIView+AnimationOptionsForCurve.m
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/UIView+AnimationOptionsForCurve.m
+END
+JSDismissiveTextView.m
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/JSDismissiveTextView.m
+END
+JSBubbleView.h
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/JSBubbleView.h
+END
+JSBubbleView.m
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/tc/!svn/ver/19150/as/ge/TSSP_Ios/tags/IOS1.1/JSMessagesTableViewController/JSBubbleView.m
+END

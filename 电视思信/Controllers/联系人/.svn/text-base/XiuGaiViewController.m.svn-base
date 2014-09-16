@@ -1,0 +1,607 @@
+//
+//  XiuGaiViewController.m
+//  电视微信
+//
+//  Created by 陈 琨 on 13-10-25.
+//  Copyright (c) 2013年 黑小刚. All rights reserved.
+//
+
+#import "XiuGaiViewController.h"
+#import "ImageViewController.h"
+#import "SVProgressHUD.h"
+#define CHAR_NUMBER_TEXT @"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\n"
+
+@interface XiuGaiViewController ()
+
+@end
+
+@implementation XiuGaiViewController
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+-(BOOL)kongge:(NSString *)str
+{
+    
+    for (int i=0; i<[str length]; i++) {
+        NSString *str1=[str substringWithRange:NSMakeRange(i, 1)];
+        if ([str1 isEqualToString:@" "]) {
+            
+        }else{
+            
+            return YES;
+            
+        }
+    }
+    return NO;
+}
+
+-(void)newMsgCome1:(NSNotification *)notifacation
+{
+    
+    //    NSLog(@"wwwww=%@",notifacation.object);
+    //[WCMessageObject save:notifacation.object];
+     UIImage *imageC=(UIImage *)notifacation.object;
+    if (imageC!=nil) {
+        
+        [UIApplication sharedApplication].statusBarHidden=NO;
+        [self.navigationController setNavigationBarHidden:NO];
+
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"Back" object:nil];
+
+        [self.navigationController popViewControllerAnimated:NO];
+    }
+}
+-(void)handleTap1:(UIGestureRecognizer *)gesture
+{
+    [lable2 resignFirstResponder];
+    [lable1 resignFirstResponder];
+    [lable resignFirstResponder];
+    self.view.frame=CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
+}
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+	// Do any additional setup after loading the view.
+//    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+//    [window viewWithTag:123].hidden=YES;
+    UITapGestureRecognizer * tap=[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(handleTap1:)];
+     
+     
+     [self.view addGestureRecognizer:tap];
+    [tap release];
+    NSUserDefaults *userDefaults=[NSUserDefaults standardUserDefaults];
+    
+    NSArray *arrr=  [userDefaults arrayForKey:@"yonghu"];
+    self.strMima=[arrr objectAtIndex:1];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(newMsgCome1:) name:@"Back" object:nil];
+
+	// Do any additional setup after loading the view.
+    _data=[[NSMutableData alloc]init];
+        [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"背景.png"]]];
+    UIImageView *imagepic=[[UIImageView alloc]init];
+    imagepic.frame=CGRectMake(0, 0, 320, self.view.frame.size.height);
+    imagepic.image=[UIImage imageNamed:@"背景.png"];
+    imagepic.userInteractionEnabled=YES;
+    [self.view addSubview:imagepic];
+    [imagepic  release];
+
+  
+    
+      
+    
+    
+    lable=[[UITextField alloc]initWithFrame:CGRectMake(20, 10, 280,40)];
+    [lable setBackgroundColor:[UIColor  whiteColor]];
+    [lable setFont:[UIFont systemFontOfSize:20]];
+    [lable setTextColor:[UIColor colorWithRed:0.63 green:0.62 blue:0.62 alpha:0.9]];
+    lable.delegate=self;
+    lable.clearsOnBeginEditing = YES;
+    
+    lable.clearButtonMode = UITextFieldViewModeWhileEditing;
+    lable.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+    [lable setBorderStyle:UITextBorderStyleRoundedRect];
+    [imagepic addSubview:lable];
+    
+    lable1=[[UITextField alloc]initWithFrame:CGRectMake(20, 60, 280,40)];
+    [lable1 setBackgroundColor:[UIColor  whiteColor]];
+    [lable1 setTextColor:[UIColor colorWithRed:0.63 green:0.62 blue:0.62 alpha:0.9]];
+
+    [lable1 setFont:[UIFont systemFontOfSize:20]];
+    lable1.hidden=YES;
+    lable1.text=@"新密码";
+    lable1.delegate=self;
+    lable1.clearsOnBeginEditing = YES;
+    
+    lable1.clearButtonMode = UITextFieldViewModeWhileEditing;
+    lable1.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+    [lable1 setBorderStyle:UITextBorderStyleRoundedRect];
+    [imagepic addSubview:lable1];
+    
+    lable2=[[UITextField alloc]initWithFrame:CGRectMake(20, 110, 280,40)];
+    [lable2 setBackgroundColor:[UIColor  whiteColor]];
+    [lable2 setTextColor:[UIColor colorWithRed:0.63 green:0.62 blue:0.62 alpha:0.9]];
+    
+    [lable2 setFont:[UIFont systemFontOfSize:20]];
+    lable2.hidden=YES;
+    lable2.text=@"确定密码";
+    lable2.delegate=self;
+    lable2.clearsOnBeginEditing = YES;
+    
+    lable2.clearButtonMode = UITextFieldViewModeWhileEditing;
+    lable2.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+    [lable2 setBorderStyle:UITextBorderStyleRoundedRect];
+    [imagepic addSubview:lable2];
+
+
+    
+    
+    
+    if (self.index==2) {
+        lable.text=[[self.Message objectAtIndex:0] substringWithRange:NSMakeRange(1, [[self.Message objectAtIndex:0] length]-1)];
+        self.navigationItem.title=@"昵称";
+    }
+    if (self.index==3) {
+        lable.text=[self.Message objectAtIndex:4];
+        self.navigationItem.title=@"邮箱";
+    }
+    if (self.index==4) {
+        lable.text=[self.Message objectAtIndex:1];
+        self.navigationItem.title=@"手机";
+    }
+    if (self.index==5) {
+        lable.text=@"旧密码";
+        lable1.hidden=NO;
+        lable2.hidden=NO;
+        self.navigationItem.title=@"密码";
+    }
+    UIBarButtonItem* backItem = [[UIBarButtonItem alloc] initWithTitle:@"完成" style:UIBarButtonItemStyleBordered target:self action:@selector(addTream)];
+	backItem.tag = 90;
+	self.navigationItem.rightBarButtonItem = backItem;
+    [backItem release];
+
+
+
+}
+-(void)viewWillAppear:(BOOL)animated
+{
+    [UIApplication sharedApplication].statusBarHidden=NO;
+    [self.navigationController setNavigationBarHidden:NO];
+    if (self.index==10) {
+        UIView *uig=[[UIView alloc]init];
+        uig.frame =self.view.frame;
+        [uig setBackgroundColor:[UIColor blackColor]];
+        [self.view addSubview:uig];
+        [uig release];
+        UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
+        UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+        picker.delegate = self;
+        picker.allowsEditing = YES;
+        picker.sourceType = sourceType;
+        //        [self.navigationController pushViewController:picker animated:YES];
+//        [UIApplication sharedApplication].statusBarHidden=YES;
+        self.navigationController.navigationBarHidden=YES;
+
+        
+
+        [self.navigationController presentViewController:picker animated:YES completion:^{
+        }];
+        [picker release];
+    }
+
+    if (self.index==11) {
+        UIView *uig=[[UIView alloc]init];
+        uig.frame =self.view.frame;
+        [uig setBackgroundColor:[UIColor blackColor]];
+        [self.view addSubview:uig];
+        [uig release];
+        UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+        picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        picker.delegate = self;
+        
+        //        [self.navigationController pushViewController:picker animated:YES];
+        
+        [self.navigationController presentViewController:picker animated:YES completion:^{
+        }];
+        [picker release];
+    }
+
+
+
+
+}
+-(UIImage *)rotateImage:(UIImage *)aImage
+
+{
+    CGImageRef imgRef = aImage.CGImage;
+    CGFloat width = aImage.size.width/10;
+    CGFloat height = aImage.size.height/10;
+    CGAffineTransform transform = CGAffineTransformIdentity;
+    CGRect bounds = CGRectMake(0, 0, width, height);
+    CGFloat scaleRatio = 1;
+    CGFloat boundHeight;
+    UIImageOrientation orient = aImage.imageOrientation;
+    
+    switch(orient)
+    {
+        case UIImageOrientationUp: //EXIF = 1
+            transform = CGAffineTransformIdentity;
+            break;
+        case UIImageOrientationUpMirrored: //EXIF = 2
+            transform = CGAffineTransformMakeTranslation(width, 0.0);
+            transform = CGAffineTransformScale(transform, -1.0, 1.0);
+            break;
+        case UIImageOrientationDown: //EXIF = 3
+            transform = CGAffineTransformMakeTranslation(width, height);
+            transform = CGAffineTransformRotate(transform, M_PI);
+            break;
+        case UIImageOrientationDownMirrored: //EXIF = 4
+            transform = CGAffineTransformMakeTranslation(0.0, height);
+            transform = CGAffineTransformScale(transform, 1.0, -1.0);
+            break;
+        case UIImageOrientationLeftMirrored: //EXIF = 5
+            boundHeight = bounds.size.height;
+            bounds.size.height = bounds.size.width;
+            bounds.size.width = boundHeight;
+            transform = CGAffineTransformMakeTranslation(height, width);
+            transform = CGAffineTransformScale(transform, -1.0, 1.0);
+            transform = CGAffineTransformRotate(transform, 3.0 * M_PI / 2.0);
+            break;
+        case UIImageOrientationLeft: //EXIF = 6
+            boundHeight = bounds.size.height;
+            bounds.size.height = bounds.size.width;
+            bounds.size.width = boundHeight;
+            transform = CGAffineTransformMakeTranslation(0.0, width);
+            transform = CGAffineTransformRotate(transform, 3.0 * M_PI / 2.0);
+            break;
+        case UIImageOrientationRightMirrored: //EXIF = 7
+            boundHeight = bounds.size.height;
+            bounds.size.height = bounds.size.width;
+            bounds.size.width = boundHeight;
+            transform = CGAffineTransformMakeScale(-1.0, 1.0);
+            transform = CGAffineTransformRotate(transform, M_PI / 2.0);
+            break;
+        case UIImageOrientationRight: //EXIF = 8
+            boundHeight = bounds.size.height;
+            bounds.size.height = bounds.size.width;
+            bounds.size.width = boundHeight;
+            transform = CGAffineTransformMakeTranslation(height, 0.0);
+            transform = CGAffineTransformRotate(transform, M_PI / 2.0);
+            break;
+        default:
+            [NSException raise:NSInternalInconsistencyException format:@"Invalid image orientation"];
+    }
+    UIGraphicsBeginImageContext(bounds.size);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    if (orient == UIImageOrientationRight || orient == UIImageOrientationLeft) {
+        CGContextScaleCTM(context, -scaleRatio, scaleRatio);
+        CGContextTranslateCTM(context, -height, 0);
+    }
+    else {
+        CGContextScaleCTM(context, scaleRatio, -scaleRatio);
+        CGContextTranslateCTM(context, 0, -height);
+    }
+    CGContextConcatCTM(context, transform);
+    CGContextDrawImage(UIGraphicsGetCurrentContext(), CGRectMake(0, 0, width, height), imgRef);
+    UIImage *imageCopy = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return imageCopy;
+}
+
+-(void)imagePickerControllerDidCancel:(UIImagePickerController *)picker{
+    [picker dismissModalViewControllerAnimated:YES];
+    [self.navigationController popViewControllerAnimated:NO];
+
+}
+- (void) imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+//　  UIImage *imageLib=[editingInfo objectForKey:@"UIImagePickerControllerOriginalImage"];
+    UIImage *image4=[info objectForKey:UIImagePickerControllerOriginalImage];
+    [[NSNotificationCenter defaultCenter]postNotificationName:@"Chage" object:@"123456" ];
+
+//    NSString *imageFile =nil;
+//    NSUserDefaults *userDefaults=[NSUserDefaults standardUserDefaults];
+//    imageFile=[userDefaults stringForKey:@"headPic"];
+//    if (imageFile==nil) {
+//        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+//        NSString *documentsDirectory = [paths objectAtIndex:0];
+//        
+//        imageFile = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.png",self.strUID]];
+//   
+//        
+//        [userDefaults setObject:imageFile forKey:@"headPic"];
+//    }else{
+//    
+//    
+//        UIImage *image=[self jietu:image4 Imag:CGSizeMake(60, 60)];
+//        [UIImagePNGRepresentation(image) writeToFile:imageFile atomically:NO];
+//    
+//    
+//    }
+//    
+ 
+
+
+    ImageViewController *imagePicVIew=[[ImageViewController alloc]init];
+    imagePicVIew.image=[self rotateImage:image4];
+    imagePicVIew.arr=self.Message;
+//    imagePicVIew.strfUsid=self.strfUsid;
+    imagePicVIew.strUid=self.strUID;
+//    imagePicVIew.strPic=[[self.personArray objectAtIndex:0]objectForKey:@"m_avatar"];
+    [picker pushViewController:imagePicVIew animated:YES];
+    [imagePicVIew release];
+    
+//    [picker dismissModalViewControllerAnimated:YES];
+//    [self.navigationController popViewControllerAnimated:NO];
+    
+}
+-(UIImage *)jietu:(UIImage *)image Imag:(CGSize)newSize
+{
+    //    CGSize newSize=CGSizeMake(95, 125);
+    UIGraphicsBeginImageContext(newSize);
+    
+    [image drawInRect:CGRectMake(0,0,newSize.width,newSize.height)];
+    UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
+    
+    
+}
+- (BOOL)verificationEmail:(NSString *)email{
+    //    NSLog(@"email=%@",str);
+    if ([email length]==0) {
+        return YES;
+    }
+    NSString *regexString=@"^([0-9a-zA-Z]([-.\\w]*[0-9a-zA-Z])*@(([0-9a-zA-Z])+([-\\w]*[0-9a-zA-Z])*\\.)+[a-zA-Z]{2,9})$";
+    NSRegularExpression *regular=[NSRegularExpression regularExpressionWithPattern:regexString options:NSRegularExpressionCaseInsensitive error:nil];
+    NSInteger numer= [regular numberOfMatchesInString:email options:NSMatchingReportProgress range:NSMakeRange(0, email.length)];
+    if (numer) {
+        return YES;
+    }else{
+        return NO;
+    }
+}
+- (BOOL)checkTel:(NSString *)str
+
+{
+    if ([str length]==0) {
+        
+        return YES;
+    }
+    
+    //1[0-9]{10}
+    
+    //^((13[0-9])|(15[^4,\\D])|(18[0,5-9]))\\d{8}$
+    
+    //    NSString *regex = @"[0-9]{11}";
+    
+    NSString *regex = @"^((13[0-9])|(147)|(15[^4,\\D])|(18[0,5-9]))\\d{8}$";
+    
+    NSPredicate *pred = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
+    
+    BOOL isMatch = [pred evaluateWithObject:str];
+    
+    if (!isMatch) {
+        
+        return NO;
+        
+    }
+    
+    
+    
+    return YES;
+    
+}
+-(void) textFieldDidBeginEditing:(UITextField *)textField
+{
+     if (self.view.frame.size.height<500) {
+         if (textField==lable) {
+             
+             self.view.frame=CGRectMake(0,0, self.view.frame.size.width, self.view.frame.size.height);
+         }
+    if (textField==lable2) {
+       
+            self.view.frame=CGRectMake(0, -20, self.view.frame.size.width, self.view.frame.size.height);
+        }
+         
+         
+if (textField==lable1) {
+    self.view.frame=CGRectMake(0, -20, self.view.frame.size.width, self.view.frame.size.height);
+
+}
+    }
+
+
+
+
+
+}
+-(void)addTream
+{
+    [self handleTap1:nil];
+//    [lable resignFirstResponder];
+//    [lable1 resignFirstResponder];
+//    [lable2 resignFirstResponder];
+//    if ([lable.text length]>0&&[lable.text length]<9) {
+    
+       
+        NSString *post=nil;
+        if (self.index==2) {
+            if (![self kongge:lable.text]) {
+                [SVProgressHUD showAbnormalThenDismiss:@"昵称不能全为空格"];
+                return;
+            }
+            if ([lable.text length]>0&&[lable.text length]<9) {
+                post = [NSString stringWithFormat:@"nickname=%@&UID=%@&passWord=%@&phone=%@&email=%@&filenames=%@",lable.text,self.strUID,@"",[self.Message objectAtIndex:4],[self.Message objectAtIndex:1],@""];
+
+            }else{
+                [SVProgressHUD showAbnormalThenDismiss:@"请输入1到8位的昵称"];
+
+                return;
+            }
+            
+        }
+        if (self.index==3) {
+            if(![self verificationEmail:lable.text?lable.text:@""])
+            {
+                [SVProgressHUD showAbnormalThenDismiss:@"邮箱格式不对"];
+                return;
+            }else{
+            post = [NSString stringWithFormat:@"email=%@&UID=%@&nickname=%@&passWord=%@&phone=%@&filenames=%@",lable.text,self.strUID,[[self.Message objectAtIndex:0] substringWithRange:NSMakeRange(1, [[self.Message objectAtIndex:0] length]-1)],@"",[self.Message objectAtIndex:1],@""];
+            }
+        }
+        if (self.index==4) {
+            if(![self checkTel:lable.text])
+            {
+                [SVProgressHUD showAbnormalThenDismiss:@"手机号码格式错误"];
+                return;
+                
+                
+            }else{
+            post = [NSString stringWithFormat:@"phone=%@&UID=%@&passWord=%@&nickname=%@&email=%@&filenames=%@",lable.text,self.strUID,@"",[[self.Message objectAtIndex:0] substringWithRange:NSMakeRange(1, [[self.Message objectAtIndex:0] length]-1)],[self.Message objectAtIndex:4],@""];
+            }
+        }
+    if (self.index==5) {
+        
+        if (![lable.text isEqualToString:self.strMima]) {
+            [SVProgressHUD showAbnormalThenDismiss:@"旧密码错误"];
+            return;
+            
+        }else if (![lable1.text isEqualToString:lable2.text]) {
+            [SVProgressHUD showAbnormalThenDismiss:@"密码和确认密码不符"];
+            return;
+            
+        }else if (!([lable1.text length]>=6&&[lable1.text length]<=12)) {
+            [SVProgressHUD showAbnormalThenDismiss:@"请输入6到12位的密码"];
+            return;
+            
+        }else if (![self PressMima:lable1.text]) {
+            [SVProgressHUD showAbnormalThenDismiss:@"密码请输入字母或数字组合"];
+            return;
+        }else {
+        
+            post = [NSString stringWithFormat:@"passWord=%@&UID=%@&phone=%@&nickname=%@&email=%@&filenames=%@",lable1.text,self.strUID,[self.Message objectAtIndex:1],[[self.Message objectAtIndex:0] substringWithRange:NSMakeRange(1, [[self.Message objectAtIndex:0] length]-1)],[self.Message objectAtIndex:4],@""];
+
+        
+        }
+    }
+     [SVProgressHUD showInView:nil status:@"请稍等.."];
+        //将post数据转换为 NSASCIIStringEncoding 编码格式
+        NSData *postData = [post dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES];
+        
+        
+        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+        //要post的地址/
+        [request setURL:[NSURL URLWithString:@"http://119.44.220.4/edituserinfo"]];
+        //    [request setURL:[NSURL URLWithString:@"http://172.16.11.6/mobilelogin"]];
+        
+        //post类型
+        [request setHTTPMethod:@"POST"];
+        
+        
+        
+        //设置post数据
+        [request setHTTPBody:postData];
+        //创建链接
+        NSURLConnection * conn1 = [[[NSURLConnection alloc] initWithRequest:request delegate:self] autorelease];
+        [request release];
+//    }else{
+//        
+//        [SVProgressHUD showAbnormalThenDismiss:@"组名在一位与八位之间"];
+//        
+//        
+//    }
+    
+    
+    
+}
+-(BOOL)PressMima:(NSString *)ssss
+{
+    
+    
+    for (int i=0; i<[ssss length]; i++) {
+        NSString *sa=[ssss substringWithRange:NSMakeRange(i, 1)];
+        if ([CHAR_NUMBER_TEXT rangeOfString:sa].length==0){
+            return NO;
+        }else{
+            
+            
+            
+            
+            
+        }
+        
+    }
+    
+    return YES;
+    
+}
+#pragma mark -connect
+-(void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+{
+    [_data setLength:0];
+}
+-(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+{
+    [_data appendData:data];
+    
+}
+-(void)connectionDidFinishLoading:(NSURLConnection *)connection
+{
+    
+    //    NSError *error;
+    [SVProgressHUD dismiss];
+    
+    NSString *str=[[NSString alloc]initWithData:_data encoding:NSUTF8StringEncoding];
+//    NSLog(@"wwww=%@",str);
+    if ([str intValue]==0) {
+        [SVProgressHUD showAbnormalThenDismiss:@"添加成功"];
+        if (self.index==2) {
+               [self.delegate XiuGaiViewMessage:[NSArray arrayWithObjects:[NSString stringWithFormat:@"/%@",lable.text],[NSString stringWithFormat:@"%d",self.index], nil]];
+        }else{
+        
+            [self.delegate XiuGaiViewMessage:[NSArray arrayWithObjects:[NSString stringWithFormat:@"%@",lable.text],[NSString stringWithFormat:@"%d",self.index], nil]];
+
+        
+        }
+     
+        [self performSelector:@selector(back) withObject:self afterDelay:0.3];
+        
+    }else{
+        [SVProgressHUD showAbnormalThenDismiss:@"添加失败"];
+        
+        
+    }
+    
+    
+}
+-(void)back
+{
+    
+    [self.navigationController popViewControllerAnimated:YES];
+    
+}
+-(void)dealloc{
+
+    [super dealloc];
+    [_data release];
+    [lable  release];
+//    [lable1 release];
+//    [lable2 release];
+
+
+
+
+}
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+@end
